@@ -14,8 +14,12 @@ function SearchSection({ onSearch, onMicClick, isLoading = false }: SearchSectio
   const [urlError, setUrlError] = useState("");
 
   const validateURL = (input: string): boolean => {
-    const urlPattern = /^(https?:\/\/)?(www\.)?(spotify\.com|youtube\.com|youtu\.be|audiomack\.com)\/.+/i;
-    return urlPattern.test(input);
+    // Check if it looks like a URL (contains http/https or common domain patterns)
+    const urlPattern = /^(https?:\/\/)?(www\.)?(spotify\.com|youtube\.com|youtu\.be|audiomack\.com|music\.apple\.com|soundcloud\.com|boomplay\.com|deezer\.com)\/.+/i;
+    const hasProtocol = /^https?:\/\//i.test(input);
+    const hasDomain = /\.(com|net|org|io)/i.test(input);
+    
+    return urlPattern.test(input) || (hasProtocol && hasDomain);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -42,8 +46,13 @@ function SearchSection({ onSearch, onMicClick, isLoading = false }: SearchSectio
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setUrl(e.target.value);
-    if (urlError) {
+    const value = e.target.value;
+    setUrl(value);
+    
+    // Show error only if user has typed something that doesn't look like a URL
+    if (value.trim() && !value.includes(".") && !value.includes("/") && value.length > 3) {
+      setUrlError("Invalid URL");
+    } else {
       setUrlError("");
     }
   };
@@ -62,7 +71,7 @@ function SearchSection({ onSearch, onMicClick, isLoading = false }: SearchSectio
         <div className="relative">
           <Input
             type="text"
-            placeholder="Paste song URL (Spotify, YouTube, Audiomack)..."
+            placeholder="Paste song URL (Spotify, YouTube, Apple Music, SoundCloud, Boomplay, Deezer, Audiomack)..."
             value={url}
             onChange={handleInputChange}
             disabled={isLoading}

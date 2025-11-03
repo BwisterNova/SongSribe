@@ -29,7 +29,7 @@ function Home() {
   const [showOrb, setShowOrb] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [recognizedSong, setRecognizedSong] = useState<{ name: string; artist: string } | undefined>(undefined);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [fabExpanded, setFabExpanded] = useState(false);
   const [currentReview, setCurrentReview] = useState(0);
@@ -97,15 +97,29 @@ function Home() {
           description: `${mockSong.name} by ${mockSong.artist}`,
         });
 
+        // Check if lyrics are available
+        const hasLyrics = Math.random() > 0.1; // 90% chance of having lyrics
+
         setTimeout(() => {
-          setSongData({
-            title: mockSong.name,
-            artist: mockSong.artist,
-            albumArt: "https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=400&q=80",
-            lyrics: `[Verse 1]\nExample lyrics line 1\nExample lyrics line 2\nExample lyrics line 3\n\n[Chorus]\nExample chorus line 1\nExample chorus line 2`,
-          });
-          setShowOrb(false);
-          setRecognizedSong(undefined);
+          if (hasLyrics) {
+            setSongData({
+              title: mockSong.name,
+              artist: mockSong.artist,
+              albumArt: "https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=400&q=80",
+              lyrics: `[Verse 1]\nExample lyrics line 1\nExample lyrics line 2\nExample lyrics line 3\n\n[Chorus]\nExample chorus line 1\nExample chorus line 2`,
+            });
+            setShowOrb(false);
+            setRecognizedSong(undefined);
+          } else {
+            // Lyrics not found
+            setShowOrb(false);
+            setRecognizedSong(undefined);
+            toast({
+              title: "❌ Lyrics not found",
+              description: "The song was identified but lyrics are not available.",
+              variant: "destructive",
+            });
+          }
         }, 2000);
       } else {
         setIsListening(false);
@@ -266,7 +280,7 @@ function Home() {
                   </div>
                   <h3 className="text-lg lg:text-xl font-bold mb-2">Lightning Fast</h3>
                   <p className="text-sm lg:text-base text-muted-foreground">
-                    Get accurate lyrics in seconds from Spotify, YouTube, and Audiomack URLs
+                    Get accurate lyrics in seconds from Spotify, YouTube, Apple Music, SoundCloud, Boomplay, Deezer, and Audiomack URLs
                   </p>
                 </CardContent>
               </Card>
@@ -417,7 +431,7 @@ function Home() {
                   Which music platforms are supported?
                 </AccordionTrigger>
                 <AccordionContent className="text-sm lg:text-base text-muted-foreground">
-                  SongScribe supports Spotify, YouTube, and Audiomack URLs. Simply paste the link and we'll fetch the lyrics for you.
+                  SongScribe supports Spotify, YouTube, Apple Music, SoundCloud, Boomplay, Deezer, and Audiomack URLs. Simply paste the link and we'll fetch the lyrics for you.
                 </AccordionContent>
               </AccordionItem>
 
