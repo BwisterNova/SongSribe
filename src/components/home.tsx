@@ -15,6 +15,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "./ui/accordion";
+import { identifySongByUrl, identifySongByAudio } from "../lib/identifySong";
 
 interface SongData {
   title: string;
@@ -33,6 +34,8 @@ function Home() {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [fabExpanded, setFabExpanded] = useState(false);
   const [currentReview, setCurrentReview] = useState(0);
+  const [audioRecorder, setAudioRecorder] = useState<MediaRecorder | null>(null);
+  const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
   const { toast } = useToast();
 
   const reviews = [
@@ -59,22 +62,28 @@ function Home() {
   const handleSearch = async (url: string) => {
     setIsLoading(true);
     
-    setTimeout(() => {
-      setSongData({
-        title: "Example Song",
-        artist: "Example Artist",
-        albumArt: "https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=400&q=80",
-        lyrics: `[Verse 1]\nExample lyrics line 1\nExample lyrics line 2\nExample lyrics line 3\n\n[Chorus]\nExample chorus line 1\nExample chorus line 2\n\n[Verse 2]\nExample lyrics line 4\nExample lyrics line 5`,
-      });
-      setIsLoading(false);
+    try {
+      const result = await identifySongByUrl(url);
+      
+      if (result) {
+        setSongData(result);
+        toast({
+          title: "Song identified!",
+          description: "Lyrics loaded successfully.",
+        });
+      }
+    } catch (error) {
       toast({
-        title: "Song identified!",
-        description: "Lyrics loaded successfully.",
+        title: "❌ Error",
+        description: error instanceof Error ? error.message : "Failed to identify song",
+        variant: "destructive",
       });
-    }, 2000);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleMicClick = () => {
+  const handleMicClick = async () => {
     setShowOrb(true);
     setIsListening(true);
     setRecognizedSong(undefined);
@@ -84,55 +93,82 @@ function Home() {
       description: "Listening to audio...",
     });
 
-    setTimeout(() => {
-      const isSuccess = Math.random() > 0.2;
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      const chunks: Blob[] = [];
 
-      if (isSuccess) {
-        const mockSong = { name: "Example Song", artist: "Example Artist" };
-        setRecognizedSong(mockSong);
-        setIsListening(false);
+      recorder.ondataavailable = (e) => {
+        chunks.push(e.data);
+      };
 
-        toast({
-          title: "✅ Song found!",
-          description: `${mockSong.name} by ${mockSong.artist}`,
-        });
+      recorder.onstop = async () => {
+        const audioBlob = new Blob(chunks, { type: 'audio/wav' });
+        
+        try {
+          const result = await identifySongByAudio(audioBlob);
+          
+          if (result) {
+            setRecognizedSong({ name: result.title, artist: result.artist });
+            setIsListening(false);
 
-        // Check if lyrics are available
-        const hasLyrics = Math.random() > 0.1; // 90% chance of having lyrics
-
-        setTimeout(() => {
-          if (hasLyrics) {
-            setSongData({
-              title: mockSong.name,
-              artist: mockSong.artist,
-              albumArt: "https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=400&q=80",
-              lyrics: `[Verse 1]\nExample lyrics line 1\nExample lyrics line 2\nExample lyrics line 3\n\n[Chorus]\nExample chorus line 1\nExample chorus line 2`,
-            });
-            setShowOrb(false);
-            setRecognizedSong(undefined);
-          } else {
-            // Lyrics not found
-            setShowOrb(false);
-            setRecognizedSong(undefined);
             toast({
-              title: "❌ Lyrics not found",
-              description: "The song was identified but lyrics are not available.",
-              variant: "destructive",
+              title: "✅ Song found!",
+              description: `${result.title} by ${result.artist}`,
             });
+
+            setTimeout(() => {
+              if (result.lyrics) {
+                setSongData(result);
+                setShowOrb(false);
+                setRecognizedSong(undefined);
+              } else {
+                setShowOrb(false);
+                setRecognizedSong(undefined);
+                toast({
+                  title: "❌ Lyrics not found",
+                  description: "The song was identified but lyrics are not available.",
+                  variant: "destructive",
+                });
+              }
+            }, 2000);
           }
-        }, 2000);
-      } else {
-        setIsListening(false);
-        toast({
-          title: "❌ Song not found",
-          description: "Could not identify the song. Please try again.",
-          variant: "destructive",
-        });
-      }
-    }, 3000);
+        } catch (error) {
+          setIsListening(false);
+          toast({
+            title: "❌ Song not found",
+            description: error instanceof Error ? error.message : "Could not identify the song. Please try again.",
+            variant: "destructive",
+          });
+        }
+
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      recorder.start();
+      setAudioRecorder(recorder);
+
+      setTimeout(() => {
+        if (recorder.state === 'recording') {
+          recorder.stop();
+        }
+      }, 5000);
+
+    } catch (error) {
+      setIsListening(false);
+      setShowOrb(false);
+      toast({
+        title: "❌ Microphone access denied",
+        description: "Please allow microphone access to identify songs.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleOrbDismiss = () => {
+    if (audioRecorder && audioRecorder.state === 'recording') {
+      audioRecorder.stop();
+    }
     setShowOrb(false);
     setIsListening(false);
     setRecognizedSong(undefined);
