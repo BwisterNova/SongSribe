@@ -12,6 +12,7 @@ export interface SongData {
   lyrics: string;
   spotifyUrl?: string;
   appleMusicUrl?: string;
+  noLyrics?: boolean;
 }
 
 export async function identifySongByUrl(url: string): Promise<SongData | null> {
@@ -28,27 +29,30 @@ export async function identifySongByUrl(url: string): Promise<SongData | null> {
     console.log('Full AudD Response:', data);
 
     if (data.status === 'error' || !data.result) {
-      throw new Error(data.error?.error_message || 'Song not found');
+      const errorMsg = data.error?.error_message || 'Song not found';
+      if (errorMsg.includes('audio fingerprint') || errorMsg.includes('not found')) {
+        throw new Error("We couldn't fetch lyrics or metadata for this source.");
+      }
+      throw new Error(errorMsg);
     }
 
     const result = data.result;
     
     const albumArt = result.spotify?.album?.images?.[0]?.url || 
                      result.apple_music?.artwork?.url?.replace('{w}', '400').replace('{h}', '400') ||
+                     result.deezer?.album?.cover_xl ||
                      result.song_link || 
                      'https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=400&q=80';
 
     const lyrics = result.lyrics?.lyrics || '';
-
-    if (!lyrics) {
-      console.warn('No lyrics available for this song');
-    }
+    const noLyrics = !lyrics;
 
     return {
       title: result.title || 'Unknown Title',
       artist: result.artist || 'Unknown Artist',
       albumArt,
       lyrics,
+      noLyrics,
       spotifyUrl: result.spotify?.external_urls?.spotify,
       appleMusicUrl: result.apple_music?.url,
     };
@@ -61,7 +65,7 @@ export async function identifySongByUrl(url: string): Promise<SongData | null> {
 export async function identifySongByAudio(audioBlob: Blob): Promise<SongData | null> {
   try {
     const formData = new FormData();
-    formData.append('audio', audioBlob, 'recording.webm');
+    formData.append('audio', audioBlob, 'recording.mp3');
 
     const response = await fetch(
       `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/supabase-functions-identify-song`,
@@ -92,20 +96,19 @@ export async function identifySongByAudio(audioBlob: Blob): Promise<SongData | n
     
     const albumArt = result.spotify?.album?.images?.[0]?.url || 
                      result.apple_music?.artwork?.url?.replace('{w}', '400').replace('{h}', '400') ||
+                     result.deezer?.album?.cover_xl ||
                      result.song_link || 
                      'https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=400&q=80';
 
     const lyrics = result.lyrics?.lyrics || '';
-
-    if (!lyrics) {
-      console.warn('No lyrics available for this song');
-    }
+    const noLyrics = !lyrics;
 
     return {
       title: result.title || 'Unknown Title',
       artist: result.artist || 'Unknown Artist',
       albumArt,
       lyrics,
+      noLyrics,
       spotifyUrl: result.spotify?.external_urls?.spotify,
       appleMusicUrl: result.apple_music?.url,
     };

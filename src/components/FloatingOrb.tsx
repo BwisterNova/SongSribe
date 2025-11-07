@@ -20,13 +20,12 @@ function FloatingOrb({ isListening, songName, artist, onDismiss }: FloatingOrbPr
   const dismissTargetX = window.innerWidth / 2 - 40;
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
+    const handleMove = (clientX: number, clientY: number) => {
       if (isDragging) {
-        const newX = e.clientX - dragOffset.current.x;
-        const newY = e.clientY - dragOffset.current.y;
+        const newX = clientX - dragOffset.current.x;
+        const newY = clientY - dragOffset.current.y;
         setPosition({ x: newX, y: newY });
 
-        // Check if near dismiss target
         const distance = Math.sqrt(
           Math.pow(newX - dismissTargetX, 2) + Math.pow(newY - dismissTargetY, 2)
         );
@@ -34,12 +33,19 @@ function FloatingOrb({ isListening, songName, artist, onDismiss }: FloatingOrbPr
       }
     };
 
-    const handleMouseUp = () => {
+    const handleMouseMove = (e: MouseEvent) => handleMove(e.clientX, e.clientY);
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length > 0) {
+        e.preventDefault();
+        handleMove(e.touches[0].clientX, e.touches[0].clientY);
+      }
+    };
+
+    const handleEnd = () => {
       if (isDragging) {
         setIsDragging(false);
         setShowDismissTarget(false);
         
-        // Check if should dismiss
         if (isNearDismiss) {
           onDismiss();
         }
@@ -49,24 +55,38 @@ function FloatingOrb({ isListening, songName, artist, onDismiss }: FloatingOrbPr
 
     if (isDragging) {
       document.addEventListener("mousemove", handleMouseMove);
-      document.addEventListener("mouseup", handleMouseUp);
+      document.addEventListener("mouseup", handleEnd);
+      document.addEventListener("touchmove", handleTouchMove, { passive: false });
+      document.addEventListener("touchend", handleEnd);
     }
 
     return () => {
       document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", handleMouseUp);
+      document.removeEventListener("mouseup", handleEnd);
+      document.removeEventListener("touchmove", handleTouchMove);
+      document.removeEventListener("touchend", handleEnd);
     };
   }, [isDragging, isNearDismiss, dismissTargetX, dismissTargetY, onDismiss]);
 
-  const handleMouseDown = (e: React.MouseEvent) => {
+  const handleStart = (clientX: number, clientY: number) => {
     if (orbRef.current) {
       const rect = orbRef.current.getBoundingClientRect();
       dragOffset.current = {
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
+        x: clientX - rect.left,
+        y: clientY - rect.top,
       };
       setIsDragging(true);
       setShowDismissTarget(true);
+    }
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    handleStart(e.clientX, e.clientY);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length > 0) {
+      handleStart(e.touches[0].clientX, e.touches[0].clientY);
     }
   };
 
@@ -74,10 +94,10 @@ function FloatingOrb({ isListening, songName, artist, onDismiss }: FloatingOrbPr
 
   return (
     <>
-      {/* Floating Orb */}
       <div
         ref={orbRef}
         onMouseDown={handleMouseDown}
+        onTouchStart={handleTouchStart}
         style={{
           position: "fixed",
           left: `${position.x}px`,
@@ -85,10 +105,10 @@ function FloatingOrb({ isListening, songName, artist, onDismiss }: FloatingOrbPr
           zIndex: 9999,
           cursor: isDragging ? "grabbing" : "grab",
           transition: isDragging ? "none" : "all 0.3s ease",
+          touchAction: "none",
         }}
         className="select-none"
       >
-        {/* Soundwave ripples - only show when actively listening (not when failed) */}
         {isListening && (
           <>
             <div className="absolute inset-0 rounded-full bg-purple-500/30 animate-ping" style={{ animationDuration: "2s" }} />
@@ -97,7 +117,6 @@ function FloatingOrb({ isListening, songName, artist, onDismiss }: FloatingOrbPr
           </>
         )}
 
-        {/* Main Orb */}
         <div
           className={`relative w-20 h-20 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 shadow-2xl flex items-center justify-center transition-all duration-500 ${
             isListening ? "animate-pulse" : ""
@@ -118,7 +137,6 @@ function FloatingOrb({ isListening, songName, artist, onDismiss }: FloatingOrbPr
           )}
         </div>
 
-        {/* Glow effect */}
         <div
           className="absolute inset-0 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 blur-xl opacity-60 -z-10"
           style={{
@@ -127,7 +145,6 @@ function FloatingOrb({ isListening, songName, artist, onDismiss }: FloatingOrbPr
         />
       </div>
 
-      {/* Dismiss Target */}
       {showDismissTarget && (
         <div
           style={{

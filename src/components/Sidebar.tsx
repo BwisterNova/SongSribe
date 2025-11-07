@@ -65,15 +65,24 @@ function Sidebar({ isCollapsed, onToggle, isMobile = false, isOpen = false, onCl
           {(!isCollapsed || isMobile) && <span>Note History</span>}
         </Button>
 
-        {/* Mobile-only primary item */}
+        {/* Mobile-only primary items */}
         {isMobile && (
-          <Button
-            variant="ghost"
-            className="w-full justify-start gap-3 hover:bg-purple-500/10 hover:text-purple-400"
-          >
-            <DollarSign className="w-5 h-5 flex-shrink-0 text-white" />
-            <span>Pricing</span>
-          </Button>
+          <>
+            <Button
+              variant="ghost"
+              className="w-full justify-start gap-3 hover:bg-purple-500/10 hover:text-purple-400"
+            >
+              <DollarSign className="w-5 h-5 flex-shrink-0 text-white" />
+              <span>Pricing</span>
+            </Button>
+            <Button
+              variant="ghost"
+              className="w-full justify-start gap-3 hover:bg-purple-500/10 hover:text-purple-400"
+            >
+              <MessageCircle className="w-5 h-5 flex-shrink-0 text-white" />
+              <span>Support</span>
+            </Button>
+          </>
         )}
       </div>
 

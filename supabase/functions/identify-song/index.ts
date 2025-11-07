@@ -27,7 +27,7 @@ Deno.serve(async (req) => {
         );
       }
 
-      const auddUrl = `https://api.audd.io/?api_token=${auddApiKey}&url=${encodeURIComponent(url)}&return=apple_music,spotify,lyrics`;
+      const auddUrl = `https://api.audd.io/?api_token=${auddApiKey}&url=${encodeURIComponent(url)}&return=apple_music,spotify,deezer,soundcloud,lyrics`;
       
       const response = await fetch(auddUrl);
       const data = await response.json();
@@ -51,8 +51,8 @@ Deno.serve(async (req) => {
 
       const auddFormData = new FormData();
       auddFormData.append('api_token', auddApiKey);
-      auddFormData.append('audio', audioFile);
-      auddFormData.append('return', 'apple_music,spotify,lyrics');
+      auddFormData.append('file', audioFile, 'recording.mp3');
+      auddFormData.append('return', 'apple_music,spotify,deezer,soundcloud,lyrics');
 
       const response = await fetch('https://api.audd.io/', {
         method: 'POST',
