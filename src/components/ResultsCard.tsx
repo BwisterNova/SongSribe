@@ -80,7 +80,7 @@ function ResultsCard({ songData, isLoading = false, onDownload, onClose }: Resul
               <div className="flex flex-col items-center justify-center h-full text-center space-y-4">
                 <Mic className="w-16 h-16 text-purple-400/50" />
                 <p className="text-gray-400 text-lg">
-                  Lyrics not available from this song URL, listen via mic instead.
+                  Lyrics not available for this song.
                 </p>
               </div>
             ) : (

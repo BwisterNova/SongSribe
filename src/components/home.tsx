@@ -30,7 +30,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "./ui/accordion";
-import { identifySongByUrl, identifySongByAudio } from "../lib/identifySong";
+import { identifySongByAudio } from "../lib/identifySong";
 
 interface SongData {
   title: string;
@@ -79,28 +79,11 @@ function Home() {
   ];
 
   const handleSearch = async (url: string) => {
-    setIsLoading(true);
-
-    try {
-      const result = await identifySongByUrl(url);
-
-      if (result) {
-        setSongData(result);
-        toast({
-          title: "Song identified!",
-          description: "Lyrics loaded successfully.",
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "❌ Error",
-        description:
-          error instanceof Error ? error.message : "Failed to identify song",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    toast({
+      title: "⚠️ URL search not available",
+      description: "Please use the microphone to identify songs.",
+      variant: "destructive",
+    });
   };
 
   const handleMicClick = async () => {

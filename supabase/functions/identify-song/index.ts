@@ -17,28 +17,7 @@ Deno.serve(async (req) => {
 
     const contentType = req.headers.get('content-type') || '';
 
-    if (contentType.includes('application/json')) {
-      const { url } = await req.json();
-      
-      if (!url) {
-        return new Response(
-          JSON.stringify({ error: 'URL parameter is required' }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-        );
-      }
-
-      const auddUrl = `https://api.audd.io/?api_token=${auddApiKey}&url=${encodeURIComponent(url)}&return=apple_music,spotify,deezer,soundcloud,lyrics`;
-      
-      const response = await fetch(auddUrl);
-      const data = await response.json();
-
-      console.log('AudD URL Response:', JSON.stringify(data, null, 2));
-
-      return new Response(JSON.stringify(data), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200,
-      });
-    } else if (contentType.includes('multipart/form-data')) {
+    if (contentType.includes('multipart/form-data')) {
       const formData = await req.formData();
       const audioFile = formData.get('audio');
 
@@ -60,16 +39,16 @@ Deno.serve(async (req) => {
       });
 
       const data = await response.json();
-
-      console.log('AudD Audio Response:', JSON.stringify(data, null, 2));
+      console.log('AudD Response:', JSON.stringify(data, null, 2));
 
       return new Response(JSON.stringify(data), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
       });
+
     } else {
       return new Response(
-        JSON.stringify({ error: 'Invalid content type. Use application/json or multipart/form-data' }),
+        JSON.stringify({ error: 'Invalid content type. Use multipart/form-data' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
       );
     }

@@ -15,53 +15,6 @@ export interface SongData {
   noLyrics?: boolean;
 }
 
-export async function identifySongByUrl(url: string): Promise<SongData | null> {
-  try {
-    const { data, error } = await supabase.functions.invoke('supabase-functions-identify-song', {
-      body: { url },
-    });
-
-    if (error) {
-      console.error('Error calling identify function:', error);
-      throw new Error('Failed to identify song');
-    }
-
-    console.log('Full AudD Response:', data);
-
-    if (data.status === 'error' || !data.result) {
-      const errorMsg = data.error?.error_message || 'Song not found';
-      if (errorMsg.includes('audio fingerprint') || errorMsg.includes('not found')) {
-        throw new Error("We couldn't fetch lyrics or metadata for this source.");
-      }
-      throw new Error(errorMsg);
-    }
-
-    const result = data.result;
-    
-    const albumArt = result.spotify?.album?.images?.[0]?.url || 
-                     result.apple_music?.artwork?.url?.replace('{w}', '400').replace('{h}', '400') ||
-                     result.deezer?.album?.cover_xl ||
-                     result.song_link || 
-                     'https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=400&q=80';
-
-    const lyrics = result.lyrics?.lyrics || '';
-    const noLyrics = !lyrics;
-
-    return {
-      title: result.title || 'Unknown Title',
-      artist: result.artist || 'Unknown Artist',
-      albumArt,
-      lyrics,
-      noLyrics,
-      spotifyUrl: result.spotify?.external_urls?.spotify,
-      appleMusicUrl: result.apple_music?.url,
-    };
-  } catch (error) {
-    console.error('Error identifying song by URL:', error);
-    throw error;
-  }
-}
-
 export async function identifySongByAudio(audioBlob: Blob): Promise<SongData | null> {
   try {
     const formData = new FormData();
@@ -86,29 +39,25 @@ export async function identifySongByAudio(audioBlob: Blob): Promise<SongData | n
 
     const data = await response.json();
 
-    console.log('Full AudD Audio Response:', data);
+    console.log('Full Response:', data);
 
     if (data.status === 'error' || !data.result) {
       throw new Error(data.error?.error_message || 'Song not found');
     }
 
     const result = data.result;
-    
+    const lyrics = result.lyrics?.lyrics || '';
     const albumArt = result.spotify?.album?.images?.[0]?.url || 
                      result.apple_music?.artwork?.url?.replace('{w}', '400').replace('{h}', '400') ||
                      result.deezer?.album?.cover_xl ||
-                     result.song_link || 
                      'https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=400&q=80';
 
-    const lyrics = result.lyrics?.lyrics || '';
-    const noLyrics = !lyrics;
-
     return {
-      title: result.title || 'Unknown Title',
-      artist: result.artist || 'Unknown Artist',
+      title: result.title,
+      artist: result.artist,
       albumArt,
       lyrics,
-      noLyrics,
+      noLyrics: !lyrics,
       spotifyUrl: result.spotify?.external_urls?.spotify,
       appleMusicUrl: result.apple_music?.url,
     };
