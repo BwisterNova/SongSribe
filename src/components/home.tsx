@@ -4,6 +4,7 @@ import Logo from "./Logo";
 import SearchSection from "./SearchSection";
 import ResultsCard from "./ResultsCard";
 import FloatingOrb from "./FloatingOrb";
+import AnnouncementBar from "./AnnouncementBar";
 import { useToast } from "./ui/use-toast";
 import { Toaster } from "./ui/toaster";
 import { Card, CardContent } from "./ui/card";
@@ -172,7 +173,7 @@ function Home() {
           setIsListening(false);
           setShowOrb(false);
           toast({
-            title: "❌ Song not found",
+            title: "�� Song not found",
             description:
               error instanceof Error
                 ? error.message
@@ -254,6 +255,9 @@ function Home() {
 
   return (
     <div className="min-h-screen w-full bg-background">
+      {/* Announcement Bar */}
+      <AnnouncementBar />
+
       {/* Desktop Sidebar */}
       <Sidebar
         isCollapsed={sidebarCollapsed}
