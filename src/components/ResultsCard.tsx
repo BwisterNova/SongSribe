@@ -11,6 +11,9 @@ interface SongData {
   albumArt: string;
   lyrics: string;
   noLyrics?: boolean;
+  source?: string;
+  platform?: string;
+  message?: string;
 }
 
 interface ResultsCardProps {
@@ -69,6 +72,14 @@ function ResultsCard({ songData, isLoading = false, onDownload, onClose }: Resul
           <div className="flex-1">
             <h2 className="text-3xl font-bold text-white mb-2">{songData.title}</h2>
             <p className="text-xl text-purple-300">{songData.artist}</p>
+            {songData.platform && (
+              <p className="text-sm text-purple-400/70 mt-2">Platform: {songData.platform}</p>
+            )}
+            {songData.source && songData.lyrics && (
+              <p className="text-xs text-purple-400/60 mt-1">
+                Lyrics from: {songData.source === 'audd' ? 'AudD' : songData.source === 'platform_metadata' ? 'Platform Metadata' : songData.source}
+              </p>
+            )}
           </div>
         </div>
       </CardHeader>
@@ -80,7 +91,7 @@ function ResultsCard({ songData, isLoading = false, onDownload, onClose }: Resul
               <div className="flex flex-col items-center justify-center h-full text-center space-y-4">
                 <Mic className="w-16 h-16 text-purple-400/50" />
                 <p className="text-gray-400 text-lg">
-                  Lyrics not available for this song.
+                  {songData.message || "Lyrics not available for this song."}
                 </p>
               </div>
             ) : (

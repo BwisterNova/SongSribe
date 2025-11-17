@@ -30,7 +30,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "./ui/accordion";
-import { identifySongByAudio } from "../lib/identifySong";
+import { identifySongByAudio, identifySongByUrl } from "@/lib/identifySong";
 
 interface SongData {
   title: string;
@@ -79,11 +79,45 @@ function Home() {
   ];
 
   const handleSearch = async (url: string) => {
+    setIsLoading(true);
+    setSongData(undefined);
+
     toast({
-      title: "⚠️ URL search not available",
-      description: "Please use the microphone to identify songs.",
-      variant: "destructive",
+      title: "🔍 Searching...",
+      description: "Fetching song metadata and lyrics...",
     });
+
+    try {
+      const result = await identifySongByUrl(url);
+
+      if (result) {
+        toast({
+          title: "✅ Song found!",
+          description: `${result.title} by ${result.artist}`,
+        });
+
+        setSongData(result);
+
+        if (result.noLyrics) {
+          toast({
+            title: "⚠️ Lyrics not available",
+            description: result.message || "Lyrics not found for this song.",
+            variant: "destructive",
+          });
+        }
+      }
+    } catch (error) {
+      toast({
+        title: "❌ Search failed",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Could not identify the song. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleMicClick = async () => {
@@ -121,17 +155,14 @@ function Home() {
             });
 
             setTimeout(() => {
-              if (result.lyrics) {
-                setSongData(result);
-                setShowOrb(false);
-                setRecognizedSong(undefined);
-              } else {
-                setShowOrb(false);
-                setRecognizedSong(undefined);
+              setSongData(result);
+              setShowOrb(false);
+              setRecognizedSong(undefined);
+
+              if (result.noLyrics) {
                 toast({
-                  title: "❌ Lyrics not found",
-                  description:
-                    "The song was identified but lyrics are not available.",
+                  title: "⚠️ Lyrics not available",
+                  description: result.message || "Lyrics not found for this song.",
                   variant: "destructive",
                 });
               }
@@ -139,6 +170,7 @@ function Home() {
           }
         } catch (error) {
           setIsListening(false);
+          setShowOrb(false);
           toast({
             title: "❌ Song not found",
             description:
