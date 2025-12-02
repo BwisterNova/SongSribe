@@ -9,9 +9,11 @@ interface SidebarProps {
   isMobile?: boolean;
   isOpen?: boolean;
   onClose?: () => void;
+  onNavigate?: (page: "home" | "lyrics-history" | "note-history") => void;
+  currentPage?: "home" | "lyrics-history" | "note-history";
 }
 
-function Sidebar({ isCollapsed, onToggle, isMobile = false, isOpen = false, onClose }: SidebarProps) {
+function Sidebar({ isCollapsed, onToggle, isMobile = false, isOpen = false, onClose, onNavigate, currentPage = "home" }: SidebarProps) {
   const [showExtensionDialog, setShowExtensionDialog] = useState(false);
   const [theme, setTheme] = useState<"light" | "dark">("dark");
 
@@ -48,18 +50,26 @@ function Sidebar({ isCollapsed, onToggle, isMobile = false, isOpen = false, onCl
       <div className="flex-1 p-4 space-y-2">
         <Button
           variant="ghost"
+          onClick={() => {
+            onNavigate?.("lyrics-history");
+            if (isMobile) onClose?.();
+          }}
           className={`w-full justify-start gap-3 hover:bg-purple-500/10 hover:text-purple-400 ${
-            isCollapsed && !isMobile ? "px-2" : ""
-          }`}
+            currentPage === "lyrics-history" ? "bg-purple-500/10 text-purple-400" : ""
+          } ${isCollapsed && !isMobile ? "px-2" : ""}`}
         >
           <History className="w-5 h-5 flex-shrink-0" />
           {(!isCollapsed || isMobile) && <span>Lyrics History</span>}
         </Button>
         <Button
           variant="ghost"
+          onClick={() => {
+            onNavigate?.("note-history");
+            if (isMobile) onClose?.();
+          }}
           className={`w-full justify-start gap-3 hover:bg-purple-500/10 hover:text-purple-400 ${
-            isCollapsed && !isMobile ? "px-2" : ""
-          }`}
+            currentPage === "note-history" ? "bg-purple-500/10 text-purple-400" : ""
+          } ${isCollapsed && !isMobile ? "px-2" : ""}`}
         >
           <FileText className="w-5 h-5 flex-shrink-0" />
           {(!isCollapsed || isMobile) && <span>Note History</span>}

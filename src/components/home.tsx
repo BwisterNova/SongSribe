@@ -5,6 +5,8 @@ import SearchSection from "./SearchSection";
 import ResultsCard from "./ResultsCard";
 import FloatingOrb from "./FloatingOrb";
 import AnnouncementBar from "./AnnouncementBar";
+import LyricsHistoryPage from "./LyricsHistoryPage";
+import NoteHistoryPage from "./NoteHistoryPage";
 import { useToast } from "./ui/use-toast";
 import { Toaster } from "./ui/toaster";
 import { Card, CardContent } from "./ui/card";
@@ -40,6 +42,8 @@ interface SongData {
   lyrics: string;
 }
 
+type PageType = "home" | "lyrics-history" | "note-history";
+
 function Home() {
   const [songData, setSongData] = useState<SongData | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
@@ -56,6 +60,7 @@ function Home() {
     null,
   );
   const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
+  const [currentPage, setCurrentPage] = useState<PageType>("home");
   const { toast } = useToast();
 
   const reviews = [
@@ -262,6 +267,8 @@ function Home() {
       <Sidebar
         isCollapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
+        onNavigate={setCurrentPage}
+        currentPage={currentPage}
       />
 
       {/* Mobile Sidebar */}
@@ -271,8 +278,27 @@ function Home() {
         onClose={() => setMobileSidebarOpen(false)}
         isCollapsed={false}
         onToggle={() => {}}
+        onNavigate={setCurrentPage}
+        currentPage={currentPage}
       />
 
+      {/* Lyrics History Page */}
+      {currentPage === "lyrics-history" && (
+        <div className={`transition-all duration-300 ${sidebarCollapsed ? "lg:ml-20" : "lg:ml-64"}`}>
+          <LyricsHistoryPage onBack={() => setCurrentPage("home")} />
+        </div>
+      )}
+
+      {/* Note History Page */}
+      {currentPage === "note-history" && (
+        <div className={`transition-all duration-300 ${sidebarCollapsed ? "lg:ml-20" : "lg:ml-64"}`}>
+          <NoteHistoryPage onBack={() => setCurrentPage("home")} />
+        </div>
+      )}
+
+      {/* Main Home Content */}
+      {currentPage === "home" && (
+        <>
       {/* Desktop Header */}
       <div
         className="hidden lg:block fixed top-0 right-0 z-30 bg-background/80 backdrop-blur-md border-b border-purple-500/20 px-6 py-4"
@@ -781,8 +807,6 @@ function Home() {
         </Button>
       </div>
 
-      <Toaster />
-
       {showOrb && (
         <FloatingOrb
           isListening={isListening}
@@ -791,6 +815,10 @@ function Home() {
           onDismiss={handleOrbDismiss}
         />
       )}
+        </>
+      )}
+
+      <Toaster />
     </div>
   );
 }
