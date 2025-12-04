@@ -11,6 +11,15 @@ import { useToast } from "./ui/use-toast";
 import { Toaster } from "./ui/toaster";
 import { Card, CardContent } from "./ui/card";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "./ui/dialog";
+import { Input } from "./ui/input";
+import { Textarea } from "./ui/textarea";
+import {
   Music,
   Download,
   Zap,
@@ -42,7 +51,7 @@ interface SongData {
   lyrics: string;
 }
 
-type PageType = "home" | "lyrics-history" | "note-history";
+type PageType = "home" | "lyrics-history" | "note-history" | "favorites" | "settings" | "support";
 
 function Home() {
   const [songData, setSongData] = useState<SongData | undefined>(undefined);
@@ -61,6 +70,9 @@ function Home() {
   );
   const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
   const [currentPage, setCurrentPage] = useState<PageType>("home");
+  const [showNoteDialog, setShowNoteDialog] = useState(false);
+  const [noteTitle, setNoteTitle] = useState("");
+  const [noteContent, setNoteContent] = useState("");
   const { toast } = useToast();
 
   const reviews = [
@@ -293,6 +305,117 @@ function Home() {
       {currentPage === "note-history" && (
         <div className={`transition-all duration-300 ${sidebarCollapsed ? "lg:ml-20" : "lg:ml-64"}`}>
           <NoteHistoryPage onBack={() => setCurrentPage("home")} />
+        </div>
+      )}
+
+      {/* Favorites Page - Coming Soon */}
+      {currentPage === "favorites" && (
+        <div className={`transition-all duration-300 ${sidebarCollapsed ? "lg:ml-20" : "lg:ml-64"}`}>
+          <div className="min-h-screen bg-background p-6">
+            <div className="max-w-4xl mx-auto">
+              <div className="flex items-center gap-4 mb-8">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setCurrentPage("home")}
+                  className="hover:bg-purple-500/10"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </Button>
+                <div>
+                  <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+                    Favorites
+                  </h1>
+                  <p className="text-muted-foreground text-sm mt-1">
+                    Your favorite songs collection
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-col items-center justify-center py-20 text-center">
+                <Star className="w-16 h-16 text-purple-400/50 mb-4" />
+                <h3 className="text-xl font-semibold text-gray-400 mb-2">
+                  Coming Soon
+                </h3>
+                <p className="text-muted-foreground">
+                  Save your favorite songs and access them quickly here
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Settings Page - Coming Soon */}
+      {currentPage === "settings" && (
+        <div className={`transition-all duration-300 ${sidebarCollapsed ? "lg:ml-20" : "lg:ml-64"}`}>
+          <div className="min-h-screen bg-background p-6">
+            <div className="max-w-4xl mx-auto">
+              <div className="flex items-center gap-4 mb-8">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setCurrentPage("home")}
+                  className="hover:bg-purple-500/10"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </Button>
+                <div>
+                  <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+                    Settings
+                  </h1>
+                  <p className="text-muted-foreground text-sm mt-1">
+                    Customize your experience
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-col items-center justify-center py-20 text-center">
+                <Zap className="w-16 h-16 text-purple-400/50 mb-4" />
+                <h3 className="text-xl font-semibold text-gray-400 mb-2">
+                  Coming Soon
+                </h3>
+                <p className="text-muted-foreground">
+                  Personalize your SongScribe experience with custom settings
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Support Page - Coming Soon */}
+      {currentPage === "support" && (
+        <div className={`transition-all duration-300 ${sidebarCollapsed ? "lg:ml-20" : "lg:ml-64"}`}>
+          <div className="min-h-screen bg-background p-6">
+            <div className="max-w-4xl mx-auto">
+              <div className="flex items-center gap-4 mb-8">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setCurrentPage("home")}
+                  className="hover:bg-purple-500/10"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </Button>
+                <div>
+                  <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+                    Support & Contact
+                  </h1>
+                  <p className="text-muted-foreground text-sm mt-1">
+                    Get help and reach out to us
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-col items-center justify-center py-20 text-center">
+                <HeadphonesIcon className="w-16 h-16 text-purple-400/50 mb-4" />
+                <h3 className="text-xl font-semibold text-gray-400 mb-2">
+                  Coming Soon
+                </h3>
+                <p className="text-muted-foreground">
+                  Our support team will be available to help you soon
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
@@ -775,6 +898,13 @@ function Home() {
           <>
             <Button
               size="lg"
+              onClick={() => {
+                setFabExpanded(false);
+                toast({
+                  title: "🚧 Coming Soon",
+                  description: "Support page is under development.",
+                });
+              }}
               className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-full shadow-lg px-6 gap-2"
             >
               <HeadphonesIcon className="w-5 h-5" />
@@ -782,6 +912,10 @@ function Home() {
             </Button>
             <Button
               size="lg"
+              onClick={() => {
+                setFabExpanded(false);
+                setShowNoteDialog(true);
+              }}
               className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-full shadow-lg px-6 gap-2"
             >
               <FileText className="w-5 h-5" />
@@ -789,6 +923,10 @@ function Home() {
             </Button>
             <Button
               size="lg"
+              onClick={() => {
+                setFabExpanded(false);
+                setCurrentPage("lyrics-history");
+              }}
               className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-full shadow-lg px-6 gap-2"
             >
               <History className="w-5 h-5" />
@@ -817,6 +955,63 @@ function Home() {
       )}
         </>
       )}
+
+      {/* Create Note Dialog */}
+      <Dialog open={showNoteDialog} onOpenChange={setShowNoteDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+              Create New Note
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div>
+              <Input
+                placeholder="Note title..."
+                value={noteTitle}
+                onChange={(e) => setNoteTitle(e.target.value)}
+                className="bg-background/50 border-purple-500/20 focus:border-purple-500/50"
+              />
+            </div>
+            <div>
+              <Textarea
+                placeholder="Write your note here..."
+                value={noteContent}
+                onChange={(e) => setNoteContent(e.target.value)}
+                rows={6}
+                className="bg-background/50 border-purple-500/20 focus:border-purple-500/50 resize-none"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setShowNoteDialog(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                if (noteTitle.trim()) {
+                  toast({
+                    title: "✅ Note saved!",
+                    description: `"${noteTitle}" has been saved to your notes.`,
+                  });
+                  setNoteTitle("");
+                  setNoteContent("");
+                  setShowNoteDialog(false);
+                } else {
+                  toast({
+                    title: "⚠️ Title required",
+                    description: "Please enter a title for your note.",
+                    variant: "destructive",
+                  });
+                }
+              }}
+              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+            >
+              Save Note
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Toaster />
     </div>

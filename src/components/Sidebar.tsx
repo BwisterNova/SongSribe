@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Music, History, FileText, Chrome, Sun, Moon, User, MessageCircle, DollarSign } from "lucide-react";
+import { Music, History, FileText, Chrome, Sun, Moon, User, MessageCircle, DollarSign, Heart, Settings, Home } from "lucide-react";
 import { Button } from "./ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
 
@@ -9,18 +9,29 @@ interface SidebarProps {
   isMobile?: boolean;
   isOpen?: boolean;
   onClose?: () => void;
-  onNavigate?: (page: "home" | "lyrics-history" | "note-history") => void;
-  currentPage?: "home" | "lyrics-history" | "note-history";
+  onNavigate?: (page: "home" | "lyrics-history" | "note-history" | "favorites" | "settings" | "support") => void;
+  currentPage?: "home" | "lyrics-history" | "note-history" | "favorites" | "settings" | "support";
 }
 
 function Sidebar({ isCollapsed, onToggle, isMobile = false, isOpen = false, onClose, onNavigate, currentPage = "home" }: SidebarProps) {
   const [showExtensionDialog, setShowExtensionDialog] = useState(false);
-  const [theme, setTheme] = useState<"light" | "dark">("dark");
+  const [theme, setTheme] = useState<"light" | "dark">(() => {
+    if (typeof window !== "undefined") {
+      return document.documentElement.classList.contains("light") ? "light" : "dark";
+    }
+    return "dark";
+  });
 
   const toggleTheme = () => {
     const newTheme = theme === "dark" ? "light" : "dark";
     setTheme(newTheme);
-    document.documentElement.classList.toggle("dark");
+    if (newTheme === "light") {
+      document.documentElement.classList.add("light");
+      document.body.classList.add("light");
+    } else {
+      document.documentElement.classList.remove("light");
+      document.body.classList.remove("light");
+    }
   };
 
   const handleExtensionClick = () => {
@@ -51,6 +62,19 @@ function Sidebar({ isCollapsed, onToggle, isMobile = false, isOpen = false, onCl
         <Button
           variant="ghost"
           onClick={() => {
+            onNavigate?.("home");
+            if (isMobile) onClose?.();
+          }}
+          className={`w-full justify-start gap-3 hover:bg-purple-500/10 hover:text-purple-400 ${
+            currentPage === "home" ? "bg-purple-500/10 text-purple-400" : ""
+          } ${isCollapsed && !isMobile ? "px-2" : ""}`}
+        >
+          <Home className="w-5 h-5 flex-shrink-0" />
+          {(!isCollapsed || isMobile) && <span>Home</span>}
+        </Button>
+        <Button
+          variant="ghost"
+          onClick={() => {
             onNavigate?.("lyrics-history");
             if (isMobile) onClose?.();
           }}
@@ -73,6 +97,45 @@ function Sidebar({ isCollapsed, onToggle, isMobile = false, isOpen = false, onCl
         >
           <FileText className="w-5 h-5 flex-shrink-0" />
           {(!isCollapsed || isMobile) && <span>Note History</span>}
+        </Button>
+        <Button
+          variant="ghost"
+          onClick={() => {
+            onNavigate?.("favorites");
+            if (isMobile) onClose?.();
+          }}
+          className={`w-full justify-start gap-3 hover:bg-purple-500/10 hover:text-purple-400 ${
+            currentPage === "favorites" ? "bg-purple-500/10 text-purple-400" : ""
+          } ${isCollapsed && !isMobile ? "px-2" : ""}`}
+        >
+          <Heart className="w-5 h-5 flex-shrink-0" />
+          {(!isCollapsed || isMobile) && <span>Favorites</span>}
+        </Button>
+        <Button
+          variant="ghost"
+          onClick={() => {
+            onNavigate?.("settings");
+            if (isMobile) onClose?.();
+          }}
+          className={`w-full justify-start gap-3 hover:bg-purple-500/10 hover:text-purple-400 ${
+            currentPage === "settings" ? "bg-purple-500/10 text-purple-400" : ""
+          } ${isCollapsed && !isMobile ? "px-2" : ""}`}
+        >
+          <Settings className="w-5 h-5 flex-shrink-0" />
+          {(!isCollapsed || isMobile) && <span>Settings</span>}
+        </Button>
+        <Button
+          variant="ghost"
+          onClick={() => {
+            onNavigate?.("support");
+            if (isMobile) onClose?.();
+          }}
+          className={`w-full justify-start gap-3 hover:bg-purple-500/10 hover:text-purple-400 ${
+            currentPage === "support" ? "bg-purple-500/10 text-purple-400" : ""
+          } ${isCollapsed && !isMobile ? "px-2" : ""}`}
+        >
+          <MessageCircle className="w-5 h-5 flex-shrink-0" />
+          {(!isCollapsed || isMobile) && <span>Support</span>}
         </Button>
 
         {/* Mobile-only primary items */}
