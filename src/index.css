@@ -1,82 +1,209 @@
 @tailwind base;
-  @tailwind components;
-  @tailwind utilities;
+@tailwind components;
+@tailwind utilities;
 
-  @layer base {
-    :root {
-      --background: 240 10% 3.9%;
-      --foreground: 0 0% 98%;
+@layer base {
+  :root {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
 
-      --card: 240 10% 3.9%;
-      --card-foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
 
-      --popover: 240 10% 3.9%;
-      --popover-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
 
-      --primary: 263 70% 50%;
-      --primary-foreground: 0 0% 98%;
+    --primary: 263 70% 50%;
+    --primary-foreground: 0 0% 98%;
 
-      --secondary: 240 3.7% 15.9%;
-      --secondary-foreground: 0 0% 98%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
 
-      --muted: 240 3.7% 15.9%;
-      --muted-foreground: 240 5% 64.9%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
 
-      --accent: 240 3.7% 15.9%;
-      --accent-foreground: 0 0% 98%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
 
-      --destructive: 0 62.8% 30.6%;
-      --destructive-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
 
-      --border: 240 3.7% 15.9%;
-      --input: 240 3.7% 15.9%;
-      --ring: 263 70% 50%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 263 70% 50%;
 
-      --radius: 0.5rem;
-    }
-
-    .light {
-      --background: 0 0% 100%;
-      --foreground: 240 10% 3.9%;
-
-      --card: 0 0% 100%;
-      --card-foreground: 240 10% 3.9%;
-
-      --popover: 0 0% 100%;
-      --popover-foreground: 240 10% 3.9%;
-
-      --primary: 263 70% 50%;
-      --primary-foreground: 0 0% 98%;
-
-      --secondary: 240 4.8% 95.9%;
-      --secondary-foreground: 240 5.9% 10%;
-
-      --muted: 240 4.8% 95.9%;
-      --muted-foreground: 240 3.8% 46.1%;
-
-      --accent: 240 4.8% 95.9%;
-      --accent-foreground: 240 5.9% 10%;
-
-      --destructive: 0 84.2% 60.2%;
-      --destructive-foreground: 0 0% 98%;
-
-      --border: 240 5.9% 90%;
-      --input: 240 5.9% 90%;
-      --ring: 263 70% 50%;
-    }
+    --radius: 0.5rem;
   }
 
-  @layer base {
-    * {
-      @apply border-border;
-    }
-    body {
-      @apply bg-background text-foreground;
-      background: linear-gradient(135deg, #1a0b2e 0%, #16213e 50%, #0f3460 100%);
-      min-height: 100vh;
-    }
-    .light body,
-    body.light {
-      background: linear-gradient(135deg, #f8f9ff 0%, #e8ecf4 50%, #dde4f0 100%);
-    }
+  .light {
+    --background: 0 0% 100%;
+    --foreground: 222 47% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    --primary: 263 70% 50%;
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 222 47% 11%;
+
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 215 16% 47%;
+
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 222 47% 11%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 263 70% 50%;
   }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    min-height: 100vh;
+  }
+}
+
+/* Dark mode background */
+body:not(.light) {
+  background: linear-gradient(135deg, #1a0b2e 0%, #16213e 50%, #0f3460 100%);
+}
+
+/* Light mode background */
+body.light,
+.light body {
+  background: linear-gradient(135deg, #f5f7ff 0%, #e8ecf8 50%, #dce3f5 100%);
+}
+
+/* Light mode specific overrides */
+.light .bg-card\/50 {
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
+.light .bg-card\/30 {
+  background-color: rgba(255, 255, 255, 0.6);
+}
+
+.light .bg-background\/80 {
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
+.light .bg-background\/50 {
+  background-color: rgba(255, 255, 255, 0.7);
+}
+
+.light .border-purple-500\/20 {
+  border-color: rgba(139, 92, 246, 0.3);
+}
+
+.light .border-purple-500\/10 {
+  border-color: rgba(139, 92, 246, 0.2);
+}
+
+.light .text-white {
+  color: #1e293b;
+}
+
+.light .text-gray-200 {
+  color: #374151;
+}
+
+.light .text-gray-400 {
+  color: #6b7280;
+}
+
+.light .bg-black\/20 {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.light .bg-black\/40 {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.light .hover\:bg-purple-500\/10:hover {
+  background-color: rgba(139, 92, 246, 0.15);
+}
+
+.light .bg-purple-500\/10 {
+  background-color: rgba(139, 92, 246, 0.15);
+}
+
+.light .bg-purple-500\/20 {
+  background-color: rgba(139, 92, 246, 0.2);
+}
+
+/* Light mode sidebar */
+.light .bg-background {
+  background-color: #ffffff;
+}
+
+/* Light mode cards and containers */
+.light .backdrop-blur-sm {
+  backdrop-filter: blur(8px);
+}
+
+/* Light mode text colors */
+.light .text-purple-300 {
+  color: #7c3aed;
+}
+
+.light .text-purple-400 {
+  color: #8b5cf6;
+}
+
+.light .text-purple-400\/70 {
+  color: rgba(139, 92, 246, 0.85);
+}
+
+.light .text-purple-400\/50 {
+  color: rgba(139, 92, 246, 0.7);
+}
+
+/* Light mode gradient text still works */
+.light .bg-gradient-to-r.from-purple-400.to-blue-400 {
+  background-image: linear-gradient(to right, #8b5cf6, #3b82f6);
+}
+
+/* Light mode input fields */
+.light input,
+.light textarea,
+.light select {
+  background-color: rgba(255, 255, 255, 0.9);
+  border-color: rgba(139, 92, 246, 0.3);
+  color: #1e293b;
+}
+
+.light input::placeholder,
+.light textarea::placeholder {
+  color: #9ca3af;
+}
+
+/* Light mode scrollbar */
+.light ::-webkit-scrollbar {
+  width: 8px;
+}
+
+.light ::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.light ::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.light ::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}

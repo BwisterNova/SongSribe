@@ -9,8 +9,8 @@ interface SidebarProps {
   isMobile?: boolean;
   isOpen?: boolean;
   onClose?: () => void;
-  onNavigate?: (page: "home" | "lyrics-history" | "note-history" | "favorites" | "settings" | "support") => void;
-  currentPage?: "home" | "lyrics-history" | "note-history" | "favorites" | "settings" | "support";
+  onNavigate?: (page: "home" | "lyrics-history" | "note-history" | "favorites" | "settings" | "support" | "pricing" | "my-account") => void;
+  currentPage?: "home" | "lyrics-history" | "note-history" | "favorites" | "settings" | "support" | "pricing" | "my-account";
 }
 
 function Sidebar({ isCollapsed, onToggle, isMobile = false, isOpen = false, onClose, onNavigate, currentPage = "home" }: SidebarProps) {
@@ -127,6 +127,19 @@ function Sidebar({ isCollapsed, onToggle, isMobile = false, isOpen = false, onCl
         <Button
           variant="ghost"
           onClick={() => {
+            onNavigate?.("pricing");
+            if (isMobile) onClose?.();
+          }}
+          className={`w-full justify-start gap-3 hover:bg-purple-500/10 hover:text-purple-400 ${
+            currentPage === "pricing" ? "bg-purple-500/10 text-purple-400" : ""
+          } ${isCollapsed && !isMobile ? "px-2" : ""}`}
+        >
+          <DollarSign className="w-5 h-5 flex-shrink-0" />
+          {(!isCollapsed || isMobile) && <span>Pricing</span>}
+        </Button>
+        <Button
+          variant="ghost"
+          onClick={() => {
             onNavigate?.("support");
             if (isMobile) onClose?.();
           }}
@@ -137,26 +150,19 @@ function Sidebar({ isCollapsed, onToggle, isMobile = false, isOpen = false, onCl
           <MessageCircle className="w-5 h-5 flex-shrink-0" />
           {(!isCollapsed || isMobile) && <span>Support</span>}
         </Button>
-
-        {/* Mobile-only primary items */}
-        {isMobile && (
-          <>
-            <Button
-              variant="ghost"
-              className="w-full justify-start gap-3 hover:bg-purple-500/10 hover:text-purple-400"
-            >
-              <DollarSign className="w-5 h-5 flex-shrink-0 text-white" />
-              <span>Pricing</span>
-            </Button>
-            <Button
-              variant="ghost"
-              className="w-full justify-start gap-3 hover:bg-purple-500/10 hover:text-purple-400"
-            >
-              <MessageCircle className="w-5 h-5 flex-shrink-0 text-white" />
-              <span>Support</span>
-            </Button>
-          </>
-        )}
+        <Button
+          variant="ghost"
+          onClick={() => {
+            onNavigate?.("my-account");
+            if (isMobile) onClose?.();
+          }}
+          className={`w-full justify-start gap-3 hover:bg-purple-500/10 hover:text-purple-400 ${
+            currentPage === "my-account" ? "bg-purple-500/10 text-purple-400" : ""
+          } ${isCollapsed && !isMobile ? "px-2" : ""}`}
+        >
+          <User className="w-5 h-5 flex-shrink-0" />
+          {(!isCollapsed || isMobile) && <span>My Account</span>}
+        </Button>
       </div>
 
       {/* Bottom Items */}
@@ -187,7 +193,7 @@ function Sidebar({ isCollapsed, onToggle, isMobile = false, isOpen = false, onCl
             isCollapsed && !isMobile ? "px-2" : ""
           }`}
         >
-          <Chrome className="w-5 h-5 flex-shrink-0 text-white" />
+          <Chrome className="w-5 h-5 flex-shrink-0 text-purple-400" />
           {(!isCollapsed || isMobile) && <span>Chrome Extension</span>}
         </Button>
 
@@ -199,9 +205,9 @@ function Sidebar({ isCollapsed, onToggle, isMobile = false, isOpen = false, onCl
           }`}
         >
           {theme === "dark" ? (
-            <Sun className="w-5 h-5 flex-shrink-0 text-white" />
+            <Sun className="w-5 h-5 flex-shrink-0 text-yellow-400" />
           ) : (
-            <Moon className="w-5 h-5 flex-shrink-0 text-white" />
+            <Moon className="w-5 h-5 flex-shrink-0 text-purple-400" />
           )}
           {(!isCollapsed || isMobile) && <span>{theme === "dark" ? "Light Mode" : "Dark Mode"}</span>}
         </Button>
@@ -212,7 +218,7 @@ function Sidebar({ isCollapsed, onToggle, isMobile = false, isOpen = false, onCl
             isCollapsed && !isMobile ? "px-2" : ""
           }`}
         >
-          <User className="w-5 h-5 flex-shrink-0 text-white" />
+          <User className="w-5 h-5 flex-shrink-0 text-purple-400" />
           {(!isCollapsed || isMobile) && <span>My Account</span>}
         </Button>
       </div>

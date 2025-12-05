@@ -7,6 +7,11 @@ import FloatingOrb from "./FloatingOrb";
 import AnnouncementBar from "./AnnouncementBar";
 import LyricsHistoryPage from "./LyricsHistoryPage";
 import NoteHistoryPage from "./NoteHistoryPage";
+import SupportPage from "./SupportPage";
+import PricingPage from "./PricingPage";
+import SettingsPage from "./SettingsPage";
+import FavoritesPage from "./FavoritesPage";
+import MyAccountPage from "./MyAccountPage";
 import { useToast } from "./ui/use-toast";
 import { Toaster } from "./ui/toaster";
 import { Card, CardContent } from "./ui/card";
@@ -51,7 +56,7 @@ interface SongData {
   lyrics: string;
 }
 
-type PageType = "home" | "lyrics-history" | "note-history" | "favorites" | "settings" | "support";
+type PageType = "home" | "lyrics-history" | "note-history" | "favorites" | "settings" | "support" | "pricing" | "my-account";
 
 function Home() {
   const [songData, setSongData] = useState<SongData | undefined>(undefined);
@@ -308,114 +313,41 @@ function Home() {
         </div>
       )}
 
-      {/* Favorites Page - Coming Soon */}
+      {/* Favorites Page */}
       {currentPage === "favorites" && (
         <div className={`transition-all duration-300 ${sidebarCollapsed ? "lg:ml-20" : "lg:ml-64"}`}>
-          <div className="min-h-screen bg-background p-6">
-            <div className="max-w-4xl mx-auto">
-              <div className="flex items-center gap-4 mb-8">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setCurrentPage("home")}
-                  className="hover:bg-purple-500/10"
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                </Button>
-                <div>
-                  <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-                    Favorites
-                  </h1>
-                  <p className="text-muted-foreground text-sm mt-1">
-                    Your favorite songs collection
-                  </p>
-                </div>
-              </div>
-              <div className="flex flex-col items-center justify-center py-20 text-center">
-                <Star className="w-16 h-16 text-purple-400/50 mb-4" />
-                <h3 className="text-xl font-semibold text-gray-400 mb-2">
-                  Coming Soon
-                </h3>
-                <p className="text-muted-foreground">
-                  Save your favorite songs and access them quickly here
-                </p>
-              </div>
-            </div>
-          </div>
+          <FavoritesPage onBack={() => setCurrentPage("home")} />
         </div>
       )}
 
-      {/* Settings Page - Coming Soon */}
+      {/* Settings Page */}
       {currentPage === "settings" && (
         <div className={`transition-all duration-300 ${sidebarCollapsed ? "lg:ml-20" : "lg:ml-64"}`}>
-          <div className="min-h-screen bg-background p-6">
-            <div className="max-w-4xl mx-auto">
-              <div className="flex items-center gap-4 mb-8">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setCurrentPage("home")}
-                  className="hover:bg-purple-500/10"
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                </Button>
-                <div>
-                  <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-                    Settings
-                  </h1>
-                  <p className="text-muted-foreground text-sm mt-1">
-                    Customize your experience
-                  </p>
-                </div>
-              </div>
-              <div className="flex flex-col items-center justify-center py-20 text-center">
-                <Zap className="w-16 h-16 text-purple-400/50 mb-4" />
-                <h3 className="text-xl font-semibold text-gray-400 mb-2">
-                  Coming Soon
-                </h3>
-                <p className="text-muted-foreground">
-                  Personalize your SongScribe experience with custom settings
-                </p>
-              </div>
-            </div>
-          </div>
+          <SettingsPage onBack={() => setCurrentPage("home")} />
         </div>
       )}
 
-      {/* Support Page - Coming Soon */}
+      {/* Support Page */}
       {currentPage === "support" && (
         <div className={`transition-all duration-300 ${sidebarCollapsed ? "lg:ml-20" : "lg:ml-64"}`}>
-          <div className="min-h-screen bg-background p-6">
-            <div className="max-w-4xl mx-auto">
-              <div className="flex items-center gap-4 mb-8">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setCurrentPage("home")}
-                  className="hover:bg-purple-500/10"
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                </Button>
-                <div>
-                  <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-                    Support & Contact
-                  </h1>
-                  <p className="text-muted-foreground text-sm mt-1">
-                    Get help and reach out to us
-                  </p>
-                </div>
-              </div>
-              <div className="flex flex-col items-center justify-center py-20 text-center">
-                <HeadphonesIcon className="w-16 h-16 text-purple-400/50 mb-4" />
-                <h3 className="text-xl font-semibold text-gray-400 mb-2">
-                  Coming Soon
-                </h3>
-                <p className="text-muted-foreground">
-                  Our support team will be available to help you soon
-                </p>
-              </div>
-            </div>
-          </div>
+          <SupportPage onBack={() => setCurrentPage("home")} />
+        </div>
+      )}
+
+      {/* Pricing Page */}
+      {currentPage === "pricing" && (
+        <div className={`transition-all duration-300 ${sidebarCollapsed ? "lg:ml-20" : "lg:ml-64"}`}>
+          <PricingPage onBack={() => setCurrentPage("home")} />
+        </div>
+      )}
+
+      {/* My Account Page */}
+      {currentPage === "my-account" && (
+        <div className={`transition-all duration-300 ${sidebarCollapsed ? "lg:ml-20" : "lg:ml-64"}`}>
+          <MyAccountPage 
+            onBack={() => setCurrentPage("home")} 
+            onNavigateToPricing={() => setCurrentPage("pricing")}
+          />
         </div>
       )}
 
@@ -431,6 +363,7 @@ function Home() {
           <Button
             variant="ghost"
             className="text-foreground hover:text-purple-400"
+            onClick={() => setCurrentPage("pricing")}
           >
             <DollarSign className="w-4 h-4 mr-1" />
             Pricing
@@ -438,6 +371,7 @@ function Home() {
           <Button
             variant="ghost"
             className="text-foreground hover:text-purple-400"
+            onClick={() => setCurrentPage("support")}
           >
             <MessageCircle className="w-4 h-4 mr-1" />
             Support
@@ -445,6 +379,7 @@ function Home() {
           <Button
             variant="ghost"
             className="flex items-center gap-2 text-foreground hover:text-purple-400"
+            onClick={() => setCurrentPage("my-account")}
           >
             <User className="w-4 h-4" />
             My Account
@@ -465,6 +400,7 @@ function Home() {
           variant="ghost"
           size="sm"
           className="text-foreground hover:text-purple-400 flex items-center gap-2"
+          onClick={() => setCurrentPage("my-account")}
         >
           <User className="w-4 h-4" />
           <span>My Account</span>
@@ -506,7 +442,7 @@ function Home() {
             </p>
 
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-              <Card className="bg-card/50 backdrop-blur-sm border-2 border-purple-500/20">
+              <Card className="bg-card/50 dark:bg-card/50 backdrop-blur-sm border-2 border-purple-500/20">
                 <CardContent className="pt-6">
                   <div className="bg-gradient-to-br from-purple-500 to-blue-600 p-3 rounded-2xl w-fit mb-4">
                     <Music className="w-6 lg:w-8 h-6 lg:h-8 text-white" />
@@ -521,7 +457,7 @@ function Home() {
                 </CardContent>
               </Card>
 
-              <Card className="bg-card/50 backdrop-blur-sm border-2 border-purple-500/20">
+              <Card className="bg-card/50 dark:bg-card/50 backdrop-blur-sm border-2 border-purple-500/20">
                 <CardContent className="pt-6">
                   <div className="bg-gradient-to-br from-purple-500 to-blue-600 p-3 rounded-2xl w-fit mb-4">
                     <Download className="w-6 lg:w-8 h-6 lg:h-8 text-white" />
@@ -536,7 +472,7 @@ function Home() {
                 </CardContent>
               </Card>
 
-              <Card className="bg-card/50 backdrop-blur-sm border-2 border-purple-500/20">
+              <Card className="bg-card/50 dark:bg-card/50 backdrop-blur-sm border-2 border-purple-500/20">
                 <CardContent className="pt-6">
                   <div className="bg-gradient-to-br from-purple-500 to-blue-600 p-3 rounded-2xl w-fit mb-4">
                     <Zap className="w-6 lg:w-8 h-6 lg:h-8 text-white" />
@@ -613,7 +549,7 @@ function Home() {
             </p>
 
             <div className="relative max-w-2xl mx-auto">
-              <Card className="bg-card/50 backdrop-blur-sm border-2 border-purple-500/20">
+              <Card className="bg-card/50 dark:bg-card/50 backdrop-blur-sm border-2 border-purple-500/20">
                 <CardContent className="pt-6">
                   <div className="flex gap-1 mb-4 justify-center">
                     {[...Array(5)].map((_, i) => (
@@ -688,7 +624,7 @@ function Home() {
             <Accordion type="single" collapsible className="space-y-4">
               <AccordionItem
                 value="item-1"
-                className="bg-card/50 backdrop-blur-sm border-2 border-purple-500/20 rounded-2xl px-4 lg:px-6"
+                className="bg-card/50 dark:bg-card/50 backdrop-blur-sm border-2 border-purple-500/20 rounded-2xl px-4 lg:px-6"
               >
                 <AccordionTrigger className="text-base lg:text-lg font-semibold hover:text-purple-400">
                   How accurate is the audio recognition?
@@ -702,7 +638,7 @@ function Home() {
 
               <AccordionItem
                 value="item-2"
-                className="bg-card/50 backdrop-blur-sm border-2 border-purple-500/20 rounded-2xl px-4 lg:px-6"
+                className="bg-card/50 dark:bg-card/50 backdrop-blur-sm border-2 border-purple-500/20 rounded-2xl px-4 lg:px-6"
               >
                 <AccordionTrigger className="text-base lg:text-lg font-semibold hover:text-purple-400">
                   What formats can I download lyrics in?
@@ -716,7 +652,7 @@ function Home() {
 
               <AccordionItem
                 value="item-3"
-                className="bg-card/50 backdrop-blur-sm border-2 border-purple-500/20 rounded-2xl px-4 lg:px-6"
+                className="bg-card/50 dark:bg-card/50 backdrop-blur-sm border-2 border-purple-500/20 rounded-2xl px-4 lg:px-6"
               >
                 <AccordionTrigger className="text-base lg:text-lg font-semibold hover:text-purple-400">
                   Which music platforms are supported?
@@ -730,7 +666,7 @@ function Home() {
 
               <AccordionItem
                 value="item-4"
-                className="bg-card/50 backdrop-blur-sm border-2 border-purple-500/20 rounded-2xl px-4 lg:px-6"
+                className="bg-card/50 dark:bg-card/50 backdrop-blur-sm border-2 border-purple-500/20 rounded-2xl px-4 lg:px-6"
               >
                 <AccordionTrigger className="text-base lg:text-lg font-semibold hover:text-purple-400">
                   Is there a limit to how many songs I can search?
@@ -744,7 +680,7 @@ function Home() {
 
               <AccordionItem
                 value="item-5"
-                className="bg-card/50 backdrop-blur-sm border-2 border-purple-500/20 rounded-2xl px-4 lg:px-6"
+                className="bg-card/50 dark:bg-card/50 backdrop-blur-sm border-2 border-purple-500/20 rounded-2xl px-4 lg:px-6"
               >
                 <AccordionTrigger className="text-base lg:text-lg font-semibold hover:text-purple-400">
                   Can I use SongScribe for commercial purposes?
@@ -900,10 +836,7 @@ function Home() {
               size="lg"
               onClick={() => {
                 setFabExpanded(false);
-                toast({
-                  title: "🚧 Coming Soon",
-                  description: "Support page is under development.",
-                });
+                setCurrentPage("support");
               }}
               className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-full shadow-lg px-6 gap-2"
             >

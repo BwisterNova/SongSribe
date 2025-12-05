@@ -70,8 +70,8 @@ function ResultsCard({ songData, isLoading = false, onDownload, onClose }: Resul
             className="w-32 h-32 rounded-2xl shadow-lg object-cover"
           />
           <div className="flex-1">
-            <h2 className="text-3xl font-bold text-white mb-2">{songData.title}</h2>
-            <p className="text-xl text-purple-300">{songData.artist}</p>
+            <h2 className="text-3xl font-bold text-foreground mb-2">{songData.title}</h2>
+            <p className="text-xl text-purple-400 dark:text-purple-300">{songData.artist}</p>
             {songData.platform && (
               <p className="text-sm text-purple-400/70 mt-2">Platform: {songData.platform}</p>
             )}
@@ -95,7 +95,7 @@ function ResultsCard({ songData, isLoading = false, onDownload, onClose }: Resul
                 </p>
               </div>
             ) : (
-              <pre className="text-sm leading-relaxed whitespace-pre-wrap font-sans text-gray-200">
+              <pre className="text-sm leading-relaxed whitespace-pre-wrap font-sans text-foreground">
                 {songData.lyrics}
               </pre>
             )}

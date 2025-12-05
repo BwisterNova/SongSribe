@@ -18,33 +18,31 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { MoreVertical, Trash2, Eye, Share2, Music, ArrowLeft } from "lucide-react";
+import { MoreVertical, Trash2, Eye, Share2, Heart, ArrowLeft, Music } from "lucide-react";
 
-interface LyricHistoryItem {
+interface FavoriteItem {
   id: string;
   title: string;
   artist: string;
   albumArt: string;
-  lyrics: string;
   savedAt: Date;
 }
 
-interface LyricsHistoryPageProps {
+interface FavoritesPageProps {
   onBack: () => void;
-  lyricsHistory?: LyricHistoryItem[];
-  onDeleteLyric?: (id: string) => void;
-  onViewLyric?: (item: LyricHistoryItem) => void;
+  favorites?: FavoriteItem[];
+  onRemoveFavorite?: (id: string) => void;
+  onViewFavorite?: (item: FavoriteItem) => void;
 }
 
-function LyricsHistoryPage({
+function FavoritesPage({
   onBack,
-  lyricsHistory = [
+  favorites = [
     {
       id: "1",
       title: "Blinding Lights",
       artist: "The Weeknd",
       albumArt: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&q=80",
-      lyrics: "I've been tryna call...",
       savedAt: new Date("2024-01-15"),
     },
     {
@@ -52,7 +50,6 @@ function LyricsHistoryPage({
       title: "Shape of You",
       artist: "Ed Sheeran",
       albumArt: "https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=200&q=80",
-      lyrics: "The club isn't the best place...",
       savedAt: new Date("2024-01-14"),
     },
     {
@@ -60,40 +57,46 @@ function LyricsHistoryPage({
       title: "Bohemian Rhapsody",
       artist: "Queen",
       albumArt: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=200&q=80",
-      lyrics: "Is this the real life...",
       savedAt: new Date("2024-01-13"),
     },
+    {
+      id: "4",
+      title: "Hotel California",
+      artist: "Eagles",
+      albumArt: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=200&q=80",
+      savedAt: new Date("2024-01-12"),
+    },
   ],
-  onDeleteLyric,
-  onViewLyric,
-}: LyricsHistoryPageProps) {
+  onRemoveFavorite,
+  onViewFavorite,
+}: FavoritesPageProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<LyricHistoryItem | null>(null);
+  const [selectedItem, setSelectedItem] = useState<FavoriteItem | null>(null);
 
-  const handleDelete = (item: LyricHistoryItem) => {
+  const handleRemove = (item: FavoriteItem) => {
     setSelectedItem(item);
     setDeleteDialogOpen(true);
   };
 
-  const confirmDelete = () => {
-    if (selectedItem && onDeleteLyric) {
-      onDeleteLyric(selectedItem.id);
+  const confirmRemove = () => {
+    if (selectedItem && onRemoveFavorite) {
+      onRemoveFavorite(selectedItem.id);
     }
     setDeleteDialogOpen(false);
     setSelectedItem(null);
   };
 
-  const handleView = (item: LyricHistoryItem) => {
-    if (onViewLyric) {
-      onViewLyric(item);
+  const handleView = (item: FavoriteItem) => {
+    if (onViewFavorite) {
+      onViewFavorite(item);
     }
   };
 
-  const handleShare = (item: LyricHistoryItem) => {
+  const handleShare = (item: FavoriteItem) => {
     if (navigator.share) {
       navigator.share({
         title: `${item.title} - ${item.artist}`,
-        text: `Check out the lyrics for ${item.title} by ${item.artist}`,
+        text: `Check out ${item.title} by ${item.artist} on SongScribe!`,
       });
     }
   };
@@ -113,29 +116,29 @@ function LyricsHistoryPage({
           </Button>
           <div>
             <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-              Lyrics History
+              Favorites
             </h1>
             <p className="text-muted-foreground text-sm mt-1">
-              Your saved lyrics collection
+              Your favorite songs collection
             </p>
           </div>
         </div>
 
-        {/* Lyrics Grid */}
-        {lyricsHistory.length === 0 ? (
+        {/* Favorites Grid */}
+        {favorites.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
-            <Music className="w-16 h-16 text-purple-400/50 mb-4" />
-            <h3 className="text-xl font-semibold text-gray-400 mb-2">
-              No lyrics saved yet
+            <Heart className="w-16 h-16 text-purple-400/50 mb-4" />
+            <h3 className="text-xl font-semibold text-muted-foreground mb-2">
+              No favorites yet
             </h3>
             <p className="text-muted-foreground">
-              Search for songs and save their lyrics to see them here
+              Start adding songs to your favorites to see them here
             </p>
           </div>
         ) : (
           <ScrollArea className="h-[calc(100vh-180px)]">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {lyricsHistory.map((item) => (
+              {favorites.map((item) => (
                 <Card
                   key={item.id}
                   className="bg-card/50 dark:bg-card/50 backdrop-blur-sm border border-purple-500/20 rounded-2xl overflow-hidden hover:border-purple-500/40 transition-all group cursor-pointer"
@@ -147,6 +150,13 @@ function LyricsHistoryPage({
                       className="w-full h-40 object-cover"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
+                    
+                    {/* Heart Icon */}
+                    <div className="absolute top-2 left-2">
+                      <div className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center">
+                        <Heart className="w-4 h-4 text-red-500 fill-red-500" />
+                      </div>
+                    </div>
                     
                     {/* Action Menu */}
                     <div className="absolute top-2 right-2">
@@ -170,11 +180,11 @@ function LyricsHistoryPage({
                             Share
                           </DropdownMenuItem>
                           <DropdownMenuItem
-                            onClick={() => handleDelete(item)}
+                            onClick={() => handleRemove(item)}
                             className="text-red-500 focus:text-red-500"
                           >
                             <Trash2 className="w-4 h-4 mr-2" />
-                            Delete
+                            Remove
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -185,7 +195,7 @@ function LyricsHistoryPage({
                     <h3 className="font-semibold text-foreground truncate">{item.title}</h3>
                     <p className="text-sm text-purple-400 dark:text-purple-300 truncate">{item.artist}</p>
                     <p className="text-xs text-muted-foreground mt-2">
-                      Saved {item.savedAt.toLocaleDateString()}
+                      Added {item.savedAt.toLocaleDateString()}
                     </p>
                   </CardContent>
                 </Card>
@@ -195,22 +205,22 @@ function LyricsHistoryPage({
         )}
       </div>
 
-      {/* Delete Confirmation Dialog */}
+      {/* Remove Confirmation Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Lyrics</AlertDialogTitle>
+            <AlertDialogTitle>Remove from Favorites</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "{selectedItem?.title}" by {selectedItem?.artist}? This action cannot be undone.
+              Are you sure you want to remove "{selectedItem?.title}" by {selectedItem?.artist} from your favorites?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={confirmDelete}
+              onClick={confirmRemove}
               className="bg-red-600 hover:bg-red-700"
             >
-              Delete
+              Remove
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -219,4 +229,4 @@ function LyricsHistoryPage({
   );
 }
 
-export default LyricsHistoryPage;
+export default FavoritesPage;

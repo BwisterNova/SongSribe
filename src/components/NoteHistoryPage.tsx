@@ -155,7 +155,7 @@ function NoteHistoryPage({
             {/* Create New Note Card */}
             <Card
               onClick={handleCreateNote}
-              className="bg-card/30 backdrop-blur-sm border-2 border-dashed border-purple-500/30 rounded-2xl overflow-hidden hover:border-purple-500/60 transition-all cursor-pointer min-h-[200px] flex items-center justify-center group"
+              className="bg-card/30 dark:bg-card/30 backdrop-blur-sm border-2 border-dashed border-purple-500/30 rounded-2xl overflow-hidden hover:border-purple-500/60 transition-all cursor-pointer min-h-[200px] flex items-center justify-center group"
             >
               <div className="flex flex-col items-center gap-3 text-purple-400/70 group-hover:text-purple-400 transition-colors">
                 <div className="w-16 h-16 rounded-full bg-purple-500/10 flex items-center justify-center group-hover:bg-purple-500/20 transition-colors">
@@ -169,7 +169,7 @@ function NoteHistoryPage({
             {notes.map((note) => (
               <Card
                 key={note.id}
-                className="bg-card/50 backdrop-blur-sm border border-purple-500/20 rounded-2xl overflow-hidden hover:border-purple-500/40 transition-all group"
+                className="bg-card/50 dark:bg-card/50 backdrop-blur-sm border border-purple-500/20 rounded-2xl overflow-hidden hover:border-purple-500/40 transition-all group"
               >
                 <CardContent className="p-4 h-full flex flex-col">
                   <div className="flex items-start justify-between mb-3">
@@ -177,7 +177,7 @@ function NoteHistoryPage({
                       <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500/20 to-blue-500/20 flex items-center justify-center">
                         <FileText className="w-4 h-4 text-purple-400" />
                       </div>
-                      <h3 className="font-semibold text-white truncate max-w-[150px]">
+                      <h3 className="font-semibold text-foreground truncate max-w-[150px]">
                         {note.title}
                       </h3>
                     </div>
