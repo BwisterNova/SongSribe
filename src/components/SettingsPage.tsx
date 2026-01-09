@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -20,6 +20,7 @@ import {
   Download,
   Shield,
   Trash2,
+  Check,
 } from "lucide-react";
 import {
   AlertDialog,
@@ -32,26 +33,72 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { useToast } from "@/components/ui/use-toast";
 
 interface SettingsPageProps {
   onBack: () => void;
 }
 
+const languageNames: Record<string, string> = {
+  en: "English",
+  es: "Español",
+  fr: "Français",
+  de: "Deutsch",
+  pt: "Português",
+  ja: "日本語",
+  ko: "한국어",
+  zh: "中文",
+};
+
 function SettingsPage({ onBack }: SettingsPageProps) {
-  const [notifications, setNotifications] = useState(true);
-  const [soundEffects, setSoundEffects] = useState(true);
-  const [autoDownload, setAutoDownload] = useState(false);
-  const [language, setLanguage] = useState("en");
-  const [downloadFormat, setDownloadFormat] = useState("pdf");
+  const [notifications, setNotifications] = useState(() => {
+    const saved = localStorage.getItem("settings_notifications");
+    return saved !== null ? JSON.parse(saved) : true;
+  });
+  const [soundEffects, setSoundEffects] = useState(() => {
+    const saved = localStorage.getItem("settings_soundEffects");
+    return saved !== null ? JSON.parse(saved) : true;
+  });
+  const [autoDownload, setAutoDownload] = useState(() => {
+    const saved = localStorage.getItem("settings_autoDownload");
+    return saved !== null ? JSON.parse(saved) : false;
+  });
+  const [language, setLanguage] = useState(() => {
+    const saved = localStorage.getItem("settings_language");
+    return saved || "en";
+  });
+  const [downloadFormat, setDownloadFormat] = useState(() => {
+    const saved = localStorage.getItem("settings_downloadFormat");
+    return saved || "pdf";
+  });
   const [theme, setTheme] = useState(() => {
     if (typeof window !== "undefined") {
       return document.documentElement.classList.contains("light") ? "light" : "dark";
     }
     return "dark";
   });
+  const { toast } = useToast();
+
+  // Save settings to localStorage
+  useEffect(() => {
+    localStorage.setItem("settings_notifications", JSON.stringify(notifications));
+  }, [notifications]);
+
+  useEffect(() => {
+    localStorage.setItem("settings_soundEffects", JSON.stringify(soundEffects));
+  }, [soundEffects]);
+
+  useEffect(() => {
+    localStorage.setItem("settings_autoDownload", JSON.stringify(autoDownload));
+  }, [autoDownload]);
+
+  useEffect(() => {
+    localStorage.setItem("settings_downloadFormat", downloadFormat);
+  }, [downloadFormat]);
 
   const handleThemeChange = (newTheme: string) => {
     setTheme(newTheme);
+    localStorage.setItem("settings_theme", newTheme);
     if (newTheme === "light") {
       document.documentElement.classList.add("light");
       document.body.classList.add("light");
@@ -59,6 +106,15 @@ function SettingsPage({ onBack }: SettingsPageProps) {
       document.documentElement.classList.remove("light");
       document.body.classList.remove("light");
     }
+  };
+
+  const handleLanguageChange = (newLanguage: string) => {
+    setLanguage(newLanguage);
+    localStorage.setItem("settings_language", newLanguage);
+    toast({
+      title: "Language Updated",
+      description: `Language changed to ${languageNames[newLanguage]}. Some content may need to be refreshed.`,
+    });
   };
 
   return (
@@ -216,16 +272,59 @@ function SettingsPage({ onBack }: SettingsPageProps) {
                     Select your preferred language
                   </p>
                 </div>
-                <Select value={language} onValueChange={setLanguage}>
+                <Select value={language} onValueChange={handleLanguageChange}>
                   <SelectTrigger className="w-40 bg-background/50 dark:bg-background/50 border-purple-500/20">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="en">English</SelectItem>
-                    <SelectItem value="es">Español</SelectItem>
-                    <SelectItem value="fr">Français</SelectItem>
-                    <SelectItem value="de">Deutsch</SelectItem>
-                    <SelectItem value="pt">Português</SelectItem>
+                    <SelectItem value="en">
+                      <span className="flex items-center gap-2">
+                        🇺🇸 English
+                        {language === "en" && <Check className="w-3 h-3 text-green-500" />}
+                      </span>
+                    </SelectItem>
+                    <SelectItem value="es">
+                      <span className="flex items-center gap-2">
+                        🇪🇸 Español
+                        {language === "es" && <Check className="w-3 h-3 text-green-500" />}
+                      </span>
+                    </SelectItem>
+                    <SelectItem value="fr">
+                      <span className="flex items-center gap-2">
+                        🇫🇷 Français
+                        {language === "fr" && <Check className="w-3 h-3 text-green-500" />}
+                      </span>
+                    </SelectItem>
+                    <SelectItem value="de">
+                      <span className="flex items-center gap-2">
+                        🇩🇪 Deutsch
+                        {language === "de" && <Check className="w-3 h-3 text-green-500" />}
+                      </span>
+                    </SelectItem>
+                    <SelectItem value="pt">
+                      <span className="flex items-center gap-2">
+                        🇵🇹 Português
+                        {language === "pt" && <Check className="w-3 h-3 text-green-500" />}
+                      </span>
+                    </SelectItem>
+                    <SelectItem value="ja">
+                      <span className="flex items-center gap-2">
+                        🇯🇵 日本語
+                        {language === "ja" && <Check className="w-3 h-3 text-green-500" />}
+                      </span>
+                    </SelectItem>
+                    <SelectItem value="ko">
+                      <span className="flex items-center gap-2">
+                        🇰🇷 한국어
+                        {language === "ko" && <Check className="w-3 h-3 text-green-500" />}
+                      </span>
+                    </SelectItem>
+                    <SelectItem value="zh">
+                      <span className="flex items-center gap-2">
+                        🇨🇳 中文
+                        {language === "zh" && <Check className="w-3 h-3 text-green-500" />}
+                      </span>
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>

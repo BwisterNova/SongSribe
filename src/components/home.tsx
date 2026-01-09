@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Logo from "./Logo";
 import SearchSection from "./SearchSection";
@@ -48,6 +49,7 @@ import {
   AccordionTrigger,
 } from "./ui/accordion";
 import { identifySongByAudio, identifySongByUrl } from "@/lib/identifySong";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface SongData {
   title: string;
@@ -58,7 +60,11 @@ interface SongData {
 
 type PageType = "home" | "lyrics-history" | "note-history" | "favorites" | "settings" | "support" | "pricing" | "my-account";
 
-function Home() {
+interface HomeProps {
+  initialPage?: PageType;
+}
+
+function Home({ initialPage = "home" }: HomeProps) {
   const [songData, setSongData] = useState<SongData | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
   const [showOrb, setShowOrb] = useState(false);
@@ -74,11 +80,49 @@ function Home() {
     null,
   );
   const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
-  const [currentPage, setCurrentPage] = useState<PageType>("home");
+  const [currentPage, setCurrentPage] = useState<PageType>(initialPage);
   const [showNoteDialog, setShowNoteDialog] = useState(false);
   const [noteTitle, setNoteTitle] = useState("");
   const [noteContent, setNoteContent] = useState("");
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { user, isLoading: authLoading, signInWithGoogle } = useAuth();
+
+  // Update URL when page changes
+  const handlePageChange = (page: PageType) => {
+    setCurrentPage(page);
+    const path = page === "home" ? "/" : `/${page}`;
+    navigate(path);
+  };
+
+  // Sync page state with URL on initial load and URL changes
+  useEffect(() => {
+    const pathToPage: Record<string, PageType> = {
+      "/": "home",
+      "/lyrics-history": "lyrics-history",
+      "/note-history": "note-history",
+      "/favorites": "favorites",
+      "/settings": "settings",
+      "/support": "support",
+      "/pricing": "pricing",
+      "/my-account": "my-account",
+    };
+    const page = pathToPage[location.pathname] || "home";
+    setCurrentPage(page);
+  }, [location.pathname]);
+
+  // Prevent body scroll when mobile sidebar is open
+  useEffect(() => {
+    if (mobileSidebarOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileSidebarOpen]);
 
   const reviews = [
     {
@@ -284,7 +328,7 @@ function Home() {
       <Sidebar
         isCollapsed={sidebarCollapsed}
         onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
-        onNavigate={setCurrentPage}
+        onNavigate={handlePageChange}
         currentPage={currentPage}
       />
 
@@ -295,59 +339,95 @@ function Home() {
         onClose={() => setMobileSidebarOpen(false)}
         isCollapsed={false}
         onToggle={() => {}}
-        onNavigate={setCurrentPage}
+        onNavigate={handlePageChange}
         currentPage={currentPage}
       />
 
       {/* Lyrics History Page */}
       {currentPage === "lyrics-history" && (
         <div className={`transition-all duration-300 ${sidebarCollapsed ? "lg:ml-20" : "lg:ml-64"}`}>
-          <LyricsHistoryPage onBack={() => setCurrentPage("home")} />
+          <LyricsHistoryPage onBack={() => handlePageChange("home")} />
         </div>
       )}
 
       {/* Note History Page */}
       {currentPage === "note-history" && (
         <div className={`transition-all duration-300 ${sidebarCollapsed ? "lg:ml-20" : "lg:ml-64"}`}>
-          <NoteHistoryPage onBack={() => setCurrentPage("home")} />
+          <NoteHistoryPage onBack={() => handlePageChange("home")} />
         </div>
       )}
 
       {/* Favorites Page */}
       {currentPage === "favorites" && (
         <div className={`transition-all duration-300 ${sidebarCollapsed ? "lg:ml-20" : "lg:ml-64"}`}>
-          <FavoritesPage onBack={() => setCurrentPage("home")} />
+          <FavoritesPage onBack={() => handlePageChange("home")} />
         </div>
       )}
 
       {/* Settings Page */}
       {currentPage === "settings" && (
         <div className={`transition-all duration-300 ${sidebarCollapsed ? "lg:ml-20" : "lg:ml-64"}`}>
-          <SettingsPage onBack={() => setCurrentPage("home")} />
+          <SettingsPage onBack={() => handlePageChange("home")} />
         </div>
       )}
 
       {/* Support Page */}
       {currentPage === "support" && (
         <div className={`transition-all duration-300 ${sidebarCollapsed ? "lg:ml-20" : "lg:ml-64"}`}>
-          <SupportPage onBack={() => setCurrentPage("home")} />
+          <SupportPage onBack={() => handlePageChange("home")} />
         </div>
       )}
 
       {/* Pricing Page */}
       {currentPage === "pricing" && (
         <div className={`transition-all duration-300 ${sidebarCollapsed ? "lg:ml-20" : "lg:ml-64"}`}>
-          <PricingPage onBack={() => setCurrentPage("home")} />
+          <PricingPage onBack={() => handlePageChange("home")} />
         </div>
       )}
 
       {/* My Account Page */}
       {currentPage === "my-account" && (
         <div className={`transition-all duration-300 ${sidebarCollapsed ? "lg:ml-20" : "lg:ml-64"}`}>
-          <MyAccountPage 
-            onBack={() => setCurrentPage("home")} 
-            onNavigateToPricing={() => setCurrentPage("pricing")}
-          />
+          {user ? (
+            <MyAccountPage 
+              onBack={() => handlePageChange("home")} 
+              onNavigateToPricing={() => handlePageChange("pricing")}
+            />
+          ) : (
+            <div className="min-h-screen bg-background p-6 pt-20 lg:pt-6">
+              <div className="max-w-md mx-auto text-center">
+                <div className="bg-card/50 dark:bg-card/50 rounded-2xl p-8 border border-purple-500/20">
+                  <User className="w-16 h-16 mx-auto mb-4 text-purple-400" />
+                  <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent mb-2">
+                    Sign In Required
+                  </h1>
+                  <p className="text-muted-foreground mb-6">
+                    Sign in to access your account, save lyrics, and sync your notes across devices.
+                  </p>
+                  <Button
+                    onClick={signInWithGoogle}
+                    disabled={authLoading}
+                    className="w-full bg-white hover:bg-gray-100 text-gray-900 border border-gray-300 flex items-center justify-center gap-3"
+                  >
+                    <svg className="w-5 h-5" viewBox="0 0 24 24">
+                      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                      <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                    </svg>
+                    {authLoading ? "Loading..." : "Continue with Google"}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={() => handlePageChange("home")}
+                    className="mt-4 w-full"
+                  >
+                    Back to Home
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -363,7 +443,7 @@ function Home() {
           <Button
             variant="ghost"
             className="text-foreground hover:text-purple-400"
-            onClick={() => setCurrentPage("pricing")}
+            onClick={() => handlePageChange("pricing")}
           >
             <DollarSign className="w-4 h-4 mr-1" />
             Pricing
@@ -371,7 +451,7 @@ function Home() {
           <Button
             variant="ghost"
             className="text-foreground hover:text-purple-400"
-            onClick={() => setCurrentPage("support")}
+            onClick={() => handlePageChange("support")}
           >
             <MessageCircle className="w-4 h-4 mr-1" />
             Support
@@ -379,7 +459,7 @@ function Home() {
           <Button
             variant="ghost"
             className="flex items-center gap-2 text-foreground hover:text-purple-400"
-            onClick={() => setCurrentPage("my-account")}
+            onClick={() => handlePageChange("my-account")}
           >
             <User className="w-4 h-4" />
             My Account
@@ -400,7 +480,7 @@ function Home() {
           variant="ghost"
           size="sm"
           className="text-foreground hover:text-purple-400 flex items-center gap-2"
-          onClick={() => setCurrentPage("my-account")}
+          onClick={() => handlePageChange("my-account")}
         >
           <User className="w-4 h-4" />
           <span>My Account</span>
@@ -836,7 +916,7 @@ function Home() {
               size="lg"
               onClick={() => {
                 setFabExpanded(false);
-                setCurrentPage("support");
+                handlePageChange("support");
               }}
               className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-full shadow-lg px-6 gap-2"
             >
@@ -858,7 +938,7 @@ function Home() {
               size="lg"
               onClick={() => {
                 setFabExpanded(false);
-                setCurrentPage("lyrics-history");
+                handlePageChange("lyrics-history");
               }}
               className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-full shadow-lg px-6 gap-2"
             >

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,7 +26,6 @@ import {
 import {
   ArrowLeft,
   User,
-  Mail,
   Calendar,
   Crown,
   Edit,
@@ -36,7 +35,9 @@ import {
   FileText,
   Heart,
   Camera,
+  Upload,
 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface MyAccountPageProps {
   onBack: () => void;
@@ -44,17 +45,25 @@ interface MyAccountPageProps {
 }
 
 function MyAccountPage({ onBack, onNavigateToPricing }: MyAccountPageProps) {
+  const { user, signOut } = useAuth();
   const [editProfileOpen, setEditProfileOpen] = useState(false);
-  const [name, setName] = useState("John Doe");
-  const [email, setEmail] = useState("john.doe@example.com");
-  const [editName, setEditName] = useState(name);
-  const [editEmail, setEditEmail] = useState(email);
+  const [signOutDialogOpen, setSignOutDialogOpen] = useState(false);
+  const [displayName, setDisplayName] = useState(user?.user_metadata?.full_name || user?.email?.split("@")[0] || "User");
+  const [editName, setEditName] = useState(displayName);
+  const [customAvatar, setCustomAvatar] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const userEmail = user?.email || "No email";
+  const userAvatar = customAvatar || user?.user_metadata?.avatar_url || null;
+  const memberSince = user?.created_at 
+    ? new Date(user.created_at).toLocaleDateString("en-US", { month: "long", year: "numeric" })
+    : "Unknown";
 
   const userStats = {
     lyricsSearched: 156,
     notesSaved: 23,
     favorites: 45,
-    memberSince: "January 2024",
+    memberSince,
   };
 
   const currentPlan = {
@@ -63,9 +72,28 @@ function MyAccountPage({ onBack, onNavigateToPricing }: MyAccountPageProps) {
   };
 
   const handleSaveProfile = () => {
-    setName(editName);
-    setEmail(editEmail);
+    setDisplayName(editName);
     setEditProfileOpen(false);
+  };
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setCustomAvatar(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      onBack();
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
   };
 
   return (
@@ -99,28 +127,35 @@ function MyAccountPage({ onBack, onNavigateToPricing }: MyAccountPageProps) {
               <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 -mt-12">
                 <div className="relative">
                   <Avatar className="w-24 h-24 border-4 border-background">
-                    <AvatarImage src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&q=80" />
-                    <AvatarFallback className="text-2xl bg-purple-600">
-                      {name.split(" ").map(n => n[0]).join("")}
+                    <AvatarImage src={userAvatar || undefined} />
+                    <AvatarFallback className="text-2xl bg-purple-600 text-white">
+                      {displayName.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)}
                     </AvatarFallback>
                   </Avatar>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleAvatarChange}
+                    accept="image/*"
+                    className="hidden"
+                  />
                   <Button
                     size="icon"
                     className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-purple-600 hover:bg-purple-700"
+                    onClick={() => fileInputRef.current?.click()}
                   >
                     <Camera className="w-4 h-4" />
                   </Button>
                 </div>
                 <div className="flex-1 text-center sm:text-left pb-4">
-                  <h2 className="text-xl font-bold text-foreground">{name}</h2>
-                  <p className="text-muted-foreground text-sm">{email}</p>
+                  <h2 className="text-xl font-bold text-foreground">{displayName}</h2>
+                  <p className="text-muted-foreground text-sm">{userEmail}</p>
                 </div>
                 <Button
                   variant="outline"
                   className="border-purple-500/30 mb-4"
                   onClick={() => {
-                    setEditName(name);
-                    setEditEmail(email);
+                    setEditName(displayName);
                     setEditProfileOpen(true);
                   }}
                 >
@@ -189,13 +224,34 @@ function MyAccountPage({ onBack, onNavigateToPricing }: MyAccountPageProps) {
               </h3>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Button
-                variant="outline"
-                className="w-full justify-start border-purple-500/20 hover:bg-purple-500/10"
-              >
-                <LogOut className="w-4 h-4 mr-2" />
-                Sign Out
-              </Button>
+              <AlertDialog open={signOutDialogOpen} onOpenChange={setSignOutDialogOpen}>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start border-purple-500/20 hover:bg-purple-500/10"
+                  >
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Sign Out
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Sign Out?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Are you sure you want to sign out? You'll need to sign in again to access your account.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction 
+                      onClick={handleSignOut}
+                      className="bg-purple-600 hover:bg-purple-700"
+                    >
+                      Sign Out
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
               
               <AlertDialog>
                 <AlertDialogTrigger asChild>
@@ -236,22 +292,48 @@ function MyAccountPage({ onBack, onNavigateToPricing }: MyAccountPageProps) {
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
-            <div>
-              <Label className="text-foreground">Name</Label>
+            {/* Profile Photo Upload */}
+            <div className="flex flex-col items-center gap-4">
+              <div className="relative">
+                <Avatar className="w-24 h-24 border-4 border-purple-500/30">
+                  <AvatarImage src={userAvatar || undefined} />
+                  <AvatarFallback className="text-2xl bg-purple-600 text-white">
+                    {displayName.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)}
+                  </AvatarFallback>
+                </Avatar>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-purple-500/30"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <Upload className="w-4 h-4 mr-2" />
+                Upload New Photo
+              </Button>
+              <p className="text-xs text-muted-foreground text-center">
+                JPG, PNG or GIF. Max size 5MB
+              </p>
+            </div>
+            
+            <div className="border-t border-purple-500/20 pt-4">
+              <Label className="text-foreground">Display Name</Label>
               <Input
                 value={editName}
                 onChange={(e) => setEditName(e.target.value)}
                 className="mt-1 bg-background/50 border-purple-500/20 focus:border-purple-500/50"
+                placeholder="Enter your display name"
               />
             </div>
-            <div>
-              <Label className="text-foreground">Email</Label>
-              <Input
-                type="email"
-                value={editEmail}
-                onChange={(e) => setEditEmail(e.target.value)}
-                className="mt-1 bg-background/50 border-purple-500/20 focus:border-purple-500/50"
-              />
+            
+            <div className="bg-purple-500/10 rounded-lg p-3">
+              <p className="text-sm text-muted-foreground">
+                <span className="font-medium text-foreground">Email: </span>
+                {userEmail}
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Email is managed by your Google account
+              </p>
             </div>
           </div>
           <DialogFooter>
