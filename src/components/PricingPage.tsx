@@ -255,8 +255,22 @@ function PricingPage({ onBack, onNavigateToCheckout }: PricingPageProps) {
                         : ""
                     }`}
                     variant={plan.buttonVariant}
+                    onClick={() => {
+                      if (plan.id !== "free" && onNavigateToCheckout) {
+                        onNavigateToCheckout(plan.id, billingCycle);
+                      }
+                    }}
                   >
-                    {plan.buttonText}
+                    {plan.id === "free" ? (
+                      plan.buttonText
+                    ) : !user ? (
+                      <>
+                        <LogIn className="w-4 h-4 mr-2" />
+                        Sign In to Continue
+                      </>
+                    ) : (
+                      plan.buttonText
+                    )}
                   </Button>
 
                   <div className="space-y-3">

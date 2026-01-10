@@ -37,7 +37,8 @@ interface SidebarProps {
       | "settings"
       | "support"
       | "pricing"
-      | "my-account",
+      | "my-account"
+      | "checkout",
   ) => void;
   currentPage?:
     | "home"
@@ -46,6 +47,7 @@ interface SidebarProps {
     | "favorites"
     | "settings"
     | "support"
+    | "checkout"
     | "pricing"
     | "my-account";
 }
