@@ -42,16 +42,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, []);
 
   const signInWithGoogle = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: window.location.origin,
+    // For testing: simulate a mock sign-in without actual OAuth
+    // This creates a fake user session for development
+    const mockUser = {
+      id: "mock-user-123",
+      email: "testuser@example.com",
+      user_metadata: {
+        full_name: "Test User",
+        avatar_url: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&q=80"
       },
-    });
-    if (error) {
-      console.error("Error signing in with Google:", error);
-      throw error;
-    }
+      created_at: new Date().toISOString(),
+    } as unknown as User;
+    
+    setUser(mockUser);
+    setSession({ user: mockUser } as unknown as Session);
   };
 
   const signOut = async () => {

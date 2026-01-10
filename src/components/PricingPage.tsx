@@ -15,13 +15,17 @@ import {
   Star,
   Shield,
   Headphones,
+  LogIn,
 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface PricingPageProps {
   onBack: () => void;
+  onNavigateToCheckout?: (planId: string, billingCycle: "monthly" | "yearly") => void;
 }
 
-function PricingPage({ onBack }: PricingPageProps) {
+function PricingPage({ onBack, onNavigateToCheckout }: PricingPageProps) {
+  const { user } = useAuth();
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
 
   const plans = [

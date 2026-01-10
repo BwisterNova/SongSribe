@@ -18,7 +18,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { MoreVertical, Trash2, Eye, Share2, Heart, ArrowLeft, Music } from "lucide-react";
+import { MoreVertical, Trash2, Eye, Share2, Heart, ArrowLeft, Music, Lock, LogIn } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface FavoriteItem {
   id: string;
@@ -70,6 +71,7 @@ function FavoritesPage({
   onRemoveFavorite,
   onViewFavorite,
 }: FavoritesPageProps) {
+  const { user } = useAuth();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<FavoriteItem | null>(null);
 
@@ -124,8 +126,27 @@ function FavoritesPage({
           </div>
         </div>
 
-        {/* Favorites Grid */}
-        {favorites.length === 0 ? (
+        {/* Sign In Required */}
+        {!user ? (
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <div className="w-20 h-20 rounded-full bg-purple-500/10 flex items-center justify-center mb-6">
+              <Lock className="w-10 h-10 text-purple-400" />
+            </div>
+            <h3 className="text-xl font-semibold text-foreground mb-2">
+              Sign In Required
+            </h3>
+            <p className="text-muted-foreground mb-6 max-w-sm">
+              Please sign in to view and manage your favorite songs
+            </p>
+            <Button
+              onClick={onBack}
+              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+            >
+              <LogIn className="w-4 h-4 mr-2" />
+              Go to Sign In
+            </Button>
+          </div>
+        ) : favorites.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <Heart className="w-16 h-16 text-purple-400/50 mb-4" />
             <h3 className="text-xl font-semibold text-muted-foreground mb-2">
