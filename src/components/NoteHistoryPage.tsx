@@ -34,7 +34,11 @@ import {
   Edit,
   FileText,
   ArrowLeft,
+  Crown,
+  Lock,
+  LogIn,
 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface NoteItem {
   id: string;
@@ -46,15 +50,27 @@ interface NoteItem {
 
 interface NoteHistoryPageProps {
   onBack: () => void;
+  onNavigateToAccount: () => void;
+  onNavigateToPricing: () => void;
   notes?: NoteItem[];
   onCreateNote?: (note: { title: string; content: string }) => void;
   onEditNote?: (id: string, note: { title: string; content: string }) => void;
   onDeleteNote?: (id: string) => void;
+  isPremium?: boolean;
 }
 
 function NoteHistoryPage({
   onBack,
-  notes = [
+  onNavigateToAccount,
+  onNavigateToPricing,
+  notes: propNotes,
+  onCreateNote,
+  onEditNote,
+  onDeleteNote,
+  isPremium = false,
+}: NoteHistoryPageProps) {
+  const { user } = useAuth();
+  const [localNotes, setLocalNotes] = useState<NoteItem[]>(propNotes || [
     {
       id: "1",
       title: "Song Ideas",
@@ -69,27 +85,44 @@ function NoteHistoryPage({
       createdAt: new Date("2024-01-14"),
       updatedAt: new Date("2024-01-14"),
     },
-  ],
-  onCreateNote,
-  onEditNote,
-  onDeleteNote,
-}: NoteHistoryPageProps) {
+  ]);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedNote, setSelectedNote] = useState<NoteItem | null>(null);
   const [noteTitle, setNoteTitle] = useState("");
   const [noteContent, setNoteContent] = useState("");
+  const [premiumLimitDialogOpen, setPremiumLimitDialogOpen] = useState(false);
+  
+  const FREE_LIMIT = 3;
+  const notes = propNotes || localNotes;
 
   const handleCreateNote = () => {
+    // Check if free user has reached limit
+    if (!isPremium && notes.length >= FREE_LIMIT) {
+      setPremiumLimitDialogOpen(true);
+      return;
+    }
     setNoteTitle("");
     setNoteContent("");
     setCreateDialogOpen(true);
   };
 
   const handleSaveNewNote = () => {
-    if (noteTitle.trim() && onCreateNote) {
-      onCreateNote({ title: noteTitle, content: noteContent });
+    if (noteTitle.trim()) {
+      const newNote: NoteItem = {
+        id: Date.now().toString(),
+        title: noteTitle,
+        content: noteContent,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      
+      if (onCreateNote) {
+        onCreateNote({ title: noteTitle, content: noteContent });
+      } else {
+        setLocalNotes(prev => [newNote, ...prev]);
+      }
     }
     setCreateDialogOpen(false);
     setNoteTitle("");
@@ -104,8 +137,16 @@ function NoteHistoryPage({
   };
 
   const handleSaveEditedNote = () => {
-    if (selectedNote && noteTitle.trim() && onEditNote) {
-      onEditNote(selectedNote.id, { title: noteTitle, content: noteContent });
+    if (selectedNote && noteTitle.trim()) {
+      if (onEditNote) {
+        onEditNote(selectedNote.id, { title: noteTitle, content: noteContent });
+      } else {
+        setLocalNotes(prev => prev.map(note => 
+          note.id === selectedNote.id 
+            ? { ...note, title: noteTitle, content: noteContent, updatedAt: new Date() }
+            : note
+        ));
+      }
     }
     setEditDialogOpen(false);
     setSelectedNote(null);
@@ -119,8 +160,12 @@ function NoteHistoryPage({
   };
 
   const confirmDelete = () => {
-    if (selectedNote && onDeleteNote) {
-      onDeleteNote(selectedNote.id);
+    if (selectedNote) {
+      if (onDeleteNote) {
+        onDeleteNote(selectedNote.id);
+      } else {
+        setLocalNotes(prev => prev.filter(note => note.id !== selectedNote.id));
+      }
     }
     setDeleteDialogOpen(false);
     setSelectedNote(null);
@@ -149,6 +194,28 @@ function NoteHistoryPage({
           </div>
         </div>
 
+        {/* Sign In Required */}
+        {!user ? (
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <div className="w-20 h-20 rounded-full bg-purple-500/10 flex items-center justify-center mb-6">
+              <Lock className="w-10 h-10 text-purple-400" />
+            </div>
+            <h3 className="text-xl font-semibold text-foreground mb-2">
+              Sign In Required
+            </h3>
+            <p className="text-muted-foreground mb-6 max-w-sm">
+              Please sign in to create and manage your notes
+            </p>
+            <Button
+              onClick={onNavigateToAccount}
+              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+            >
+              <LogIn className="w-4 h-4 mr-2" />
+              Go to Sign In
+            </Button>
+          </div>
+        ) : (
+        <>
         {/* Notes Grid */}
         <ScrollArea className="h-[calc(100vh-180px)]">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -162,6 +229,11 @@ function NoteHistoryPage({
                   <Plus className="w-8 h-8" />
                 </div>
                 <span className="font-medium">Create New Note</span>
+                {!isPremium && notes.length >= FREE_LIMIT && (
+                  <span className="text-xs text-yellow-500 flex items-center gap-1">
+                    <Crown className="w-3 h-3" /> Premium required
+                  </span>
+                )}
               </div>
             </Card>
 
@@ -325,6 +397,36 @@ function NoteHistoryPage({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      
+      {/* Premium Limit Dialog */}
+      <AlertDialog open={premiumLimitDialogOpen} onOpenChange={setPremiumLimitDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <Crown className="w-5 h-5 text-yellow-500" />
+              Note Limit Reached
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Free users can only save up to {FREE_LIMIT} notes. Upgrade to Premium to create unlimited notes and unlock all features.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                setPremiumLimitDialogOpen(false);
+                onNavigateToPricing();
+              }}
+              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+            >
+              <Crown className="w-4 h-4 mr-2" />
+              Upgrade to Premium
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+        </>
+        )}
     </div>
   );
 }

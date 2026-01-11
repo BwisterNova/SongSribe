@@ -92,13 +92,19 @@ function Home({ initialPage = "home" }: HomeProps) {
   const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
   const [currentPage, setCurrentPage] = useState<PageType>(initialPage);
   const [showNoteDialog, setShowNoteDialog] = useState(false);
+  const [showNoteLimitDialog, setShowNoteLimitDialog] = useState(false);
   const [noteTitle, setNoteTitle] = useState("");
   const [noteContent, setNoteContent] = useState("");
   const [checkoutPlan, setCheckoutPlan] = useState<string>("pro");
   const [checkoutBillingCycle, setCheckoutBillingCycle] = useState<
     "monthly" | "yearly"
   >("monthly");
+  const [userNotes, setUserNotes] = useState<{id: string; title: string; content: string; createdAt: Date; updatedAt: Date}[]>([]);
   const { toast } = useToast();
+  
+  // Free tier limits
+  const FREE_NOTE_LIMIT = 3;
+  const isPremium = false; // This would come from user subscription status
   const navigate = useNavigate();
   const location = useLocation();
   const { user, isLoading: authLoading, signInWithGoogle } = useAuth();
@@ -364,7 +370,12 @@ function Home({ initialPage = "home" }: HomeProps) {
         <div
           className={`transition-all duration-300 ${sidebarCollapsed ? "lg:ml-20" : "lg:ml-64"}`}
         >
-          <LyricsHistoryPage onBack={() => handlePageChange("home")} />
+          <LyricsHistoryPage 
+            onBack={() => handlePageChange("home")} 
+            onNavigateToAccount={() => handlePageChange("my-account")}
+            onNavigateToPricing={() => handlePageChange("pricing")}
+            isPremium={false}
+          />
         </div>
       )}
 
@@ -373,7 +384,12 @@ function Home({ initialPage = "home" }: HomeProps) {
         <div
           className={`transition-all duration-300 ${sidebarCollapsed ? "lg:ml-20" : "lg:ml-64"}`}
         >
-          <NoteHistoryPage onBack={() => handlePageChange("home")} />
+          <NoteHistoryPage 
+            onBack={() => handlePageChange("home")} 
+            onNavigateToAccount={() => handlePageChange("my-account")}
+            onNavigateToPricing={() => handlePageChange("pricing")}
+            isPremium={false}
+          />
         </div>
       )}
 
@@ -382,7 +398,12 @@ function Home({ initialPage = "home" }: HomeProps) {
         <div
           className={`transition-all duration-300 ${sidebarCollapsed ? "lg:ml-20" : "lg:ml-64"}`}
         >
-          <FavoritesPage onBack={() => handlePageChange("home")} />
+          <FavoritesPage 
+            onBack={() => handlePageChange("home")} 
+            onNavigateToAccount={() => handlePageChange("my-account")}
+            onNavigateToPricing={() => handlePageChange("pricing")}
+            isPremium={false}
+          />
         </div>
       )}
 
@@ -1002,7 +1023,17 @@ function Home({ initialPage = "home" }: HomeProps) {
                   size="lg"
                   onClick={() => {
                     setFabExpanded(false);
-                    setShowNoteDialog(true);
+                    if (!user) {
+                      handlePageChange("my-account");
+                      toast({
+                        title: "Sign In Required",
+                        description: "Please sign in to create notes",
+                      });
+                    } else if (!isPremium && userNotes.length >= FREE_NOTE_LIMIT) {
+                      setShowNoteLimitDialog(true);
+                    } else {
+                      setShowNoteDialog(true);
+                    }
                   }}
                   className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-full shadow-lg px-6 gap-2"
                 >
@@ -1078,6 +1109,14 @@ function Home({ initialPage = "home" }: HomeProps) {
             <Button
               onClick={() => {
                 if (noteTitle.trim()) {
+                  const newNote = {
+                    id: Date.now().toString(),
+                    title: noteTitle,
+                    content: noteContent,
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                  };
+                  setUserNotes(prev => [newNote, ...prev]);
                   toast({
                     title: "✅ Note saved!",
                     description: `"${noteTitle}" has been saved to your notes.`,
@@ -1096,6 +1135,48 @@ function Home({ initialPage = "home" }: HomeProps) {
               className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
             >
               Save Note
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Note Limit Dialog */}
+      <Dialog open={showNoteLimitDialog} onOpenChange={setShowNoteLimitDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-xl font-bold">
+              <Star className="w-5 h-5 text-yellow-500" />
+              Note Limit Reached
+            </DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-muted-foreground mb-4">
+              Free users can only save up to {FREE_NOTE_LIMIT} notes. Upgrade to Premium to create unlimited notes and unlock all features.
+            </p>
+            <div className="bg-gradient-to-r from-purple-900/30 to-blue-900/30 rounded-xl p-4 border border-purple-500/20">
+              <h4 className="font-semibold text-foreground mb-2">Premium Benefits:</h4>
+              <ul className="text-sm text-muted-foreground space-y-1">
+                <li>• Unlimited notes</li>
+                <li>• Unlimited lyrics history</li>
+                <li>• Unlimited favorites</li>
+                <li>• PDF, DOCX & TXT downloads</li>
+                <li>• Priority support</li>
+              </ul>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setShowNoteLimitDialog(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                setShowNoteLimitDialog(false);
+                handlePageChange("pricing");
+              }}
+              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+            >
+              <Star className="w-4 h-4 mr-2" />
+              Upgrade to Premium
             </Button>
           </DialogFooter>
         </DialogContent>

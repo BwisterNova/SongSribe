@@ -1,9 +1,11 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY
-);
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+
+const supabase = supabaseUrl && supabaseAnonKey 
+  ? createClient(supabaseUrl, supabaseAnonKey)
+  : null;
 
 export interface SongData {
   title: string;
@@ -19,6 +21,10 @@ export interface SongData {
 }
 
 export async function identifySongByUrl(url: string): Promise<SongData | null> {
+  if (!supabase) {
+    throw new Error('Supabase is not configured. Please check your environment variables.');
+  }
+  
   try {
     const { data, error } = await supabase.functions.invoke('supabase-functions-identify-song', {
       body: { url },
@@ -56,16 +62,20 @@ export async function identifySongByUrl(url: string): Promise<SongData | null> {
 }
 
 export async function identifySongByAudio(audioBlob: Blob): Promise<SongData | null> {
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error('Supabase is not configured. Please check your environment variables.');
+  }
+  
   try {
     const formData = new FormData();
     formData.append('audio', audioBlob, 'recording.mp3');
 
     const response = await fetch(
-      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/supabase-functions-identify-song`,
+      `${supabaseUrl}/functions/v1/supabase-functions-identify-song`,
       {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          'Authorization': `Bearer ${supabaseAnonKey}`,
         },
         body: formData,
       }
