@@ -95,7 +95,7 @@ function NoteHistoryPage({
   const [premiumLimitDialogOpen, setPremiumLimitDialogOpen] = useState(false);
   
   const FREE_LIMIT = 3;
-  const notes = propNotes || localNotes;
+  const notes = propNotes ?? localNotes;
 
   const handleCreateNote = () => {
     // Check if free user has reached limit
@@ -172,10 +172,11 @@ function NoteHistoryPage({
   };
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
+    <>
+      <div className="min-h-screen bg-background p-6">
+        <div className="max-w-4xl mx-auto">
+          {/* Header */}
+          <div className="flex items-center gap-4 mb-8">
           <Button
             variant="ghost"
             size="icon"
@@ -215,36 +216,36 @@ function NoteHistoryPage({
             </Button>
           </div>
         ) : (
-        <>
-        {/* Notes Grid */}
-        <ScrollArea className="h-[calc(100vh-180px)]">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {/* Create New Note Card */}
-            <Card
-              onClick={handleCreateNote}
-              className="bg-card/30 dark:bg-card/30 backdrop-blur-sm border-2 border-dashed border-purple-500/30 rounded-2xl overflow-hidden hover:border-purple-500/60 transition-all cursor-pointer min-h-[200px] flex items-center justify-center group"
-            >
-              <div className="flex flex-col items-center gap-3 text-purple-400/70 group-hover:text-purple-400 transition-colors">
-                <div className="w-16 h-16 rounded-full bg-purple-500/10 flex items-center justify-center group-hover:bg-purple-500/20 transition-colors">
-                  <Plus className="w-8 h-8" />
-                </div>
-                <span className="font-medium">Create New Note</span>
-                {!isPremium && notes.length >= FREE_LIMIT && (
-                  <span className="text-xs text-yellow-500 flex items-center gap-1">
-                    <Crown className="w-3 h-3" /> Premium required
-                  </span>
-                )}
-              </div>
-            </Card>
+          <>
+            {/* Notes Grid */}
+            <ScrollArea className="h-[calc(100vh-180px)]">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {/* Create New Note Card */}
+                <Card
+                  onClick={handleCreateNote}
+                  className="bg-card/30 dark:bg-card/30 backdrop-blur-sm border-2 border-dashed border-purple-500/30 rounded-2xl overflow-hidden hover:border-purple-500/60 transition-all cursor-pointer min-h-[200px] flex items-center justify-center group"
+                >
+                  <div className="flex flex-col items-center gap-3 text-purple-400/70 group-hover:text-purple-400 transition-colors">
+                    <div className="w-16 h-16 rounded-full bg-purple-500/10 flex items-center justify-center group-hover:bg-purple-500/20 transition-colors">
+                      <Plus className="w-8 h-8" />
+                    </div>
+                    <span className="font-medium">Create New Note</span>
+                    {!isPremium && notes.length >= FREE_LIMIT && (
+                      <span className="text-xs text-yellow-500 flex items-center gap-1">
+                        <Crown className="w-3 h-3" /> Premium required
+                      </span>
+                    )}
+                  </div>
+                </Card>
 
-            {/* Existing Notes */}
-            {notes.map((note) => (
-              <Card
-                key={note.id}
-                className="bg-card/50 dark:bg-card/50 backdrop-blur-sm border border-purple-500/20 rounded-2xl overflow-hidden hover:border-purple-500/40 transition-all group"
-              >
-                <CardContent className="p-4 h-full flex flex-col">
-                  <div className="flex items-start justify-between mb-3">
+                {/* Existing Notes */}
+                {notes.map((note) => (
+                  <Card
+                    key={note.id}
+                    className="bg-card/50 dark:bg-card/50 backdrop-blur-sm border border-purple-500/20 rounded-2xl overflow-hidden hover:border-purple-500/40 transition-all group"
+                  >
+                    <CardContent className="p-4 h-full flex flex-col">
+                      <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-2">
                       <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500/20 to-blue-500/20 flex items-center justify-center">
                         <FileText className="w-4 h-4 text-purple-400" />
@@ -291,8 +292,11 @@ function NoteHistoryPage({
                 </CardContent>
               </Card>
             ))}
-          </div>
-        </ScrollArea>
+              </div>
+            </ScrollArea>
+            </>
+          )}
+        </div>
       </div>
 
       {/* Create Note Dialog */}
@@ -425,9 +429,7 @@ function NoteHistoryPage({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-        </>
-        )}
-    </div>
+    </>
   );
 }
 
