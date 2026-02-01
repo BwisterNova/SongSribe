@@ -14,6 +14,7 @@ import SettingsPage from "./SettingsPage";
 import FavoritesPage from "./FavoritesPage";
 import MyAccountPage from "./MyAccountPage";
 import CheckoutPage from "./CheckoutPage";
+import ReviewsPage from "./ReviewsPage";
 import { useToast } from "./ui/use-toast";
 import { Toaster } from "./ui/toaster";
 import { Card, CardContent } from "./ui/card";
@@ -41,6 +42,11 @@ import {
   ChevronLeft,
   ChevronRight,
   HeadphonesIcon,
+  Mic,
+  Globe,
+  Shield,
+  Clock,
+  Heart,
 } from "lucide-react";
 import { Button } from "./ui/button";
 import {
@@ -68,7 +74,8 @@ type PageType =
   | "support"
   | "pricing"
   | "my-account"
-  | "checkout";
+  | "checkout"
+  | "reviews";
 
 interface HomeProps {
   initialPage?: PageType;
@@ -128,6 +135,7 @@ function Home({ initialPage = "home" }: HomeProps) {
       "/pricing": "pricing",
       "/my-account": "my-account",
       "/checkout": "checkout",
+      "/reviews": "reviews",
     };
     const page = pathToPage[location.pathname] || "home";
     setCurrentPage(page);
@@ -149,19 +157,16 @@ function Home({ initialPage = "home" }: HomeProps) {
     {
       name: "Sarah Johnson",
       role: "Music Teacher",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah",
       text: "SongScribe is amazing! I can finally get lyrics for all my favorite songs instantly.",
     },
     {
       name: "Mike Chen",
       role: "DJ",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Mike",
       text: "The audio recognition feature is incredibly accurate. Best lyrics app I've used!",
     },
     {
       name: "Emma Davis",
       role: "Musician",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Emma",
       text: "Love the download options! Perfect for creating lyric sheets for my band.",
     },
   ];
@@ -462,6 +467,15 @@ function Home({ initialPage = "home" }: HomeProps) {
         </div>
       )}
 
+      {/* Reviews Page */}
+      {currentPage === "reviews" && (
+        <div
+          className={`transition-all duration-300 ${sidebarCollapsed ? "lg:ml-20" : "lg:ml-64"}`}
+        >
+          <ReviewsPage onBack={() => handlePageChange("home")} />
+        </div>
+      )}
+
       {/* My Account Page */}
       {currentPage === "my-account" && (
         <div
@@ -585,9 +599,19 @@ function Home({ initialPage = "home" }: HomeProps) {
               sidebarCollapsed ? "lg:ml-20" : "lg:ml-64"
             } pt-16 lg:pt-20`}
           >
-            {/* Hero Section */}
-            <section className="pt-12 lg:pt-12 pb-20 px-4">
-              <div className="max-w-6xl mx-auto">
+            {/* Hero Section with Background Image */}
+            <section className="relative pt-12 lg:pt-12 pb-20 px-4 overflow-hidden">
+              {/* Background Image */}
+              <div className="absolute inset-0 z-0">
+                <img
+                  src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=1920&q=80"
+                  alt="Music background"
+                  className="w-full h-full object-cover opacity-20"
+                />
+                <div className="absolute inset-0 bg-gradient-to-b from-background via-background/80 to-background" />
+              </div>
+              
+              <div className="relative z-10 max-w-6xl mx-auto">
                 <Logo />
                 <SearchSection
                   onSearch={handleSearch}
@@ -656,6 +680,51 @@ function Home({ initialPage = "home" }: HomeProps) {
                         Get accurate lyrics in seconds from Spotify, YouTube,
                         Apple Music, SoundCloud, Boomplay, Deezer, and Audiomack
                         URLs
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="bg-card/50 dark:bg-card/50 backdrop-blur-sm border-2 border-purple-500/20">
+                    <CardContent className="pt-6">
+                      <div className="bg-gradient-to-br from-purple-500 to-blue-600 p-3 rounded-2xl w-fit mb-4">
+                        <Mic className="w-6 lg:w-8 h-6 lg:h-8 text-white" />
+                      </div>
+                      <h3 className="text-lg lg:text-xl font-bold mb-2">
+                        Live Listening
+                      </h3>
+                      <p className="text-sm lg:text-base text-muted-foreground">
+                        Use your microphone to identify songs playing in real-time 
+                        with 95%+ accuracy
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="bg-card/50 dark:bg-card/50 backdrop-blur-sm border-2 border-purple-500/20">
+                    <CardContent className="pt-6">
+                      <div className="bg-gradient-to-br from-purple-500 to-blue-600 p-3 rounded-2xl w-fit mb-4">
+                        <Globe className="w-6 lg:w-8 h-6 lg:h-8 text-white" />
+                      </div>
+                      <h3 className="text-lg lg:text-xl font-bold mb-2">
+                        Multi-Platform Support
+                      </h3>
+                      <p className="text-sm lg:text-base text-muted-foreground">
+                        Works with all major music platforms including Spotify, 
+                        YouTube, Apple Music, and more
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="bg-card/50 dark:bg-card/50 backdrop-blur-sm border-2 border-purple-500/20">
+                    <CardContent className="pt-6">
+                      <div className="bg-gradient-to-br from-purple-500 to-blue-600 p-3 rounded-2xl w-fit mb-4">
+                        <Heart className="w-6 lg:w-8 h-6 lg:h-8 text-white" />
+                      </div>
+                      <h3 className="text-lg lg:text-xl font-bold mb-2">
+                        Save Favorites
+                      </h3>
+                      <p className="text-sm lg:text-base text-muted-foreground">
+                        Save your favorite lyrics and access them anytime from 
+                        your personal collection
                       </p>
                     </CardContent>
                   </Card>
@@ -738,11 +807,9 @@ function Home({ initialPage = "home" }: HomeProps) {
                         "{reviews[currentReview].text}"
                       </p>
                       <div className="flex items-center justify-center gap-3">
-                        <img
-                          src={reviews[currentReview].avatar}
-                          alt="User"
-                          className="w-12 h-12 rounded-full"
-                        />
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center text-white font-bold text-lg">
+                          {reviews[currentReview].name.charAt(0)}
+                        </div>
                         <div>
                           <p className="font-semibold">
                             {reviews[currentReview].name}
@@ -779,6 +846,7 @@ function Home({ initialPage = "home" }: HomeProps) {
                   <Button
                     variant="outline"
                     className="border-2 border-purple-500/30 hover:border-purple-500/50 hover:bg-purple-600/10"
+                    onClick={() => handlePageChange("reviews")}
                   >
                     See all Reviews
                   </Button>
@@ -885,6 +953,106 @@ function Home({ initialPage = "home" }: HomeProps) {
                 >
                   Start Identifying Songs
                 </Button>
+              </div>
+            </section>
+
+            {/* About Section */}
+            <section className="py-12 lg:py-20 px-4">
+              <div className="max-w-6xl mx-auto">
+                <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+                  <div className="order-2 lg:order-1">
+                    <h2 className="text-3xl lg:text-4xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+                      About SongScribe
+                    </h2>
+                    <p className="text-muted-foreground text-base lg:text-lg mb-4">
+                      SongScribe was born from a simple idea: making song lyrics accessible to everyone. 
+                      Whether you're a music teacher preparing lesson plans, a DJ identifying tracks, 
+                      or just someone who wants to sing along to their favorite songs, we've got you covered.
+                    </p>
+                    <p className="text-muted-foreground text-base lg:text-lg mb-6">
+                      Our advanced audio recognition technology, powered by cutting-edge AI, 
+                      can identify songs in seconds. Combined with our comprehensive lyrics database, 
+                      you'll never miss a word again.
+                    </p>
+                    <div className="flex flex-wrap gap-4">
+                      <div className="flex items-center gap-2 bg-purple-900/30 rounded-xl px-4 py-2">
+                        <Clock className="w-5 h-5 text-purple-400" />
+                        <span className="text-sm font-medium">Instant Results</span>
+                      </div>
+                      <div className="flex items-center gap-2 bg-purple-900/30 rounded-xl px-4 py-2">
+                        <Shield className="w-5 h-5 text-purple-400" />
+                        <span className="text-sm font-medium">Secure & Private</span>
+                      </div>
+                      <div className="flex items-center gap-2 bg-purple-900/30 rounded-xl px-4 py-2">
+                        <Globe className="w-5 h-5 text-purple-400" />
+                        <span className="text-sm font-medium">Works Globally</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="order-1 lg:order-2">
+                    <div className="relative rounded-2xl overflow-hidden border-2 border-purple-500/20">
+                      <img
+                        src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&q=80"
+                        alt="Music and technology"
+                        className="w-full h-64 lg:h-80 object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-purple-900/60 to-transparent" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* Powered By Section */}
+            <section className="py-12 lg:py-16 px-4 bg-gradient-to-b from-transparent to-purple-900/10">
+              <div className="max-w-4xl mx-auto">
+                <h2 className="text-2xl lg:text-3xl font-bold text-center mb-2 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+                  Powered By
+                </h2>
+                <p className="text-center text-muted-foreground mb-8 text-sm lg:text-base">
+                  Built with industry-leading technologies
+                </p>
+                
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 items-center">
+                  {/* Supabase */}
+                  <div className="flex flex-col items-center gap-2 p-4 bg-card/30 rounded-xl border border-purple-500/20 hover:border-purple-500/40 transition-colors">
+                    <img 
+                      src="https://supabase.com/dashboard/img/supabase-logo.svg" 
+                      alt="Supabase"
+                      className="h-10 w-auto opacity-80"
+                    />
+                    <span className="text-xs text-muted-foreground">Database & Auth</span>
+                  </div>
+                  
+                  {/* React */}
+                  <div className="flex flex-col items-center gap-2 p-4 bg-card/30 rounded-xl border border-purple-500/20 hover:border-purple-500/40 transition-colors">
+                    <svg className="h-10 w-10 text-[#61DAFB]" viewBox="-11.5 -10.23174 23 20.46348">
+                      <circle cx="0" cy="0" r="2.05" fill="currentColor"/>
+                      <g stroke="currentColor" strokeWidth="1" fill="none">
+                        <ellipse rx="11" ry="4.2"/>
+                        <ellipse rx="11" ry="4.2" transform="rotate(60)"/>
+                        <ellipse rx="11" ry="4.2" transform="rotate(120)"/>
+                      </g>
+                    </svg>
+                    <span className="text-xs text-muted-foreground">React</span>
+                  </div>
+                  
+                  {/* Tailwind CSS */}
+                  <div className="flex flex-col items-center gap-2 p-4 bg-card/30 rounded-xl border border-purple-500/20 hover:border-purple-500/40 transition-colors">
+                    <svg className="h-10 w-10" viewBox="0 0 54 33" fill="none">
+                      <path fillRule="evenodd" clipRule="evenodd" d="M27 0c-7.2 0-11.7 3.6-13.5 10.8 2.7-3.6 5.85-4.95 9.45-4.05 2.054.514 3.522 2.004 5.147 3.653C30.744 13.09 33.808 16.2 40.5 16.2c7.2 0 11.7-3.6 13.5-10.8-2.7 3.6-5.85 4.95-9.45 4.05-2.054-.514-3.522-2.004-5.147-3.653C36.756 3.11 33.692 0 27 0zM13.5 16.2C6.3 16.2 1.8 19.8 0 27c2.7-3.6 5.85-4.95 9.45-4.05 2.054.514 3.522 2.004 5.147 3.653C17.244 29.29 20.308 32.4 27 32.4c7.2 0 11.7-3.6 13.5-10.8-2.7 3.6-5.85 4.95-9.45 4.05-2.054-.514-3.522-2.004-5.147-3.653C23.256 19.31 20.192 16.2 13.5 16.2z" fill="#06B6D4"/>
+                    </svg>
+                    <span className="text-xs text-muted-foreground">Tailwind CSS</span>
+                  </div>
+                  
+                  {/* AudD */}
+                  <div className="flex flex-col items-center gap-2 p-4 bg-card/30 rounded-xl border border-purple-500/20 hover:border-purple-500/40 transition-colors">
+                    <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center">
+                      <Music className="w-6 h-6 text-white" />
+                    </div>
+                    <span className="text-xs text-muted-foreground">AudD API</span>
+                  </div>
+                </div>
               </div>
             </section>
 
