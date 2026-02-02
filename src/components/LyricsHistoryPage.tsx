@@ -102,7 +102,7 @@ function LyricsHistoryPage({
   const [viewLyricsDialogOpen, setViewLyricsDialogOpen] = useState(false);
   const [viewingLyric, setViewingLyric] = useState<LyricHistoryItem | null>(null);
   
-  const FREE_LIMIT = 3;
+  const FREE_LIMIT = 5;
 
   const handleDelete = (item: LyricHistoryItem) => {
     setSelectedItem(item);

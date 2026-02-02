@@ -102,7 +102,7 @@ function FavoritesPage({
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [viewingItem, setViewingItem] = useState<FavoriteItem | null>(null);
   
-  const FREE_LIMIT = 3;
+  const FREE_LIMIT = 5;
 
   const handleRemove = (item: FavoriteItem) => {
     setSelectedItem(item);

@@ -21,9 +21,11 @@ interface ResultsCardProps {
   isLoading?: boolean;
   onDownload: (format: "pdf" | "docx" | "txt") => void;
   onClose: () => void;
+  isPremium?: boolean;
+  onUpgradeClick?: () => void;
 }
 
-function ResultsCard({ songData, isLoading = false, onDownload, onClose }: ResultsCardProps) {
+function ResultsCard({ songData, isLoading = false, onDownload, onClose, isPremium = false, onUpgradeClick }: ResultsCardProps) {
   if (isLoading) {
     return (
       <Card className="w-full max-w-4xl mx-auto bg-card/50 backdrop-blur-sm border-2 border-purple-500/20 rounded-3xl shadow-2xl">
@@ -102,7 +104,7 @@ function ResultsCard({ songData, isLoading = false, onDownload, onClose }: Resul
           </ScrollArea>
         </div>
         {!songData.noLyrics && songData.lyrics && (
-          <DownloadButtons onDownload={onDownload} />
+          <DownloadButtons onDownload={onDownload} isPremium={isPremium} onUpgradeClick={onUpgradeClick} />
         )}
       </CardContent>
     </Card>

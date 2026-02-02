@@ -100,6 +100,7 @@ function Home({ initialPage = "home" }: HomeProps) {
   const [currentPage, setCurrentPage] = useState<PageType>(initialPage);
   const [showNoteDialog, setShowNoteDialog] = useState(false);
   const [showNoteLimitDialog, setShowNoteLimitDialog] = useState(false);
+  const [showDownloadLimitDialog, setShowDownloadLimitDialog] = useState(false);
   const [noteTitle, setNoteTitle] = useState("");
   const [noteContent, setNoteContent] = useState("");
   const [checkoutPlan, setCheckoutPlan] = useState<string>("pro");
@@ -308,6 +309,12 @@ function Home({ initialPage = "home" }: HomeProps) {
 
   const handleDownload = async (format: "pdf" | "docx" | "txt") => {
     if (!songData) return;
+
+    // Check if free user trying to download PDF or DOCX
+    if (!isPremium && (format === "pdf" || format === "docx")) {
+      setShowDownloadLimitDialog(true);
+      return;
+    }
 
     try {
       const content = `${songData.title}\nby ${songData.artist}\n\n${songData.lyrics}`;
@@ -623,6 +630,8 @@ function Home({ initialPage = "home" }: HomeProps) {
                   isLoading={isLoading}
                   onDownload={handleDownload}
                   onClose={handleCloseLyrics}
+                  isPremium={isPremium}
+                  onUpgradeClick={() => handlePageChange("pricing")}
                 />
               </div>
             </section>
@@ -1345,6 +1354,47 @@ function Home({ initialPage = "home" }: HomeProps) {
             >
               <Star className="w-4 h-4 mr-2" />
               Upgrade to Premium
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Download Limit Dialog */}
+      <Dialog open={showDownloadLimitDialog} onOpenChange={setShowDownloadLimitDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-xl font-bold">
+              <Star className="w-5 h-5 text-yellow-500" />
+              Premium Feature
+            </DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-muted-foreground mb-4">
+              PDF and DOCX downloads are available in our Pro plan. Upgrade now to download lyrics in multiple formats with embedded QR codes and branding.
+            </p>
+            <div className="bg-gradient-to-r from-purple-900/30 to-blue-900/30 rounded-xl p-4 border border-purple-500/20">
+              <h4 className="font-semibold text-foreground mb-2">Premium Download Formats:</h4>
+              <ul className="text-sm text-muted-foreground space-y-1">
+                <li>✓ PDF with QR codes</li>
+                <li>✓ DOCX with formatting</li>
+                <li>✓ TXT plain text</li>
+                <li>✓ Unlimited downloads</li>
+              </ul>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setShowDownloadLimitDialog(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                setShowDownloadLimitDialog(false);
+                handlePageChange("pricing");
+              }}
+              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+            >
+              <Star className="w-4 h-4 mr-2" />
+              Upgrade to Pro
             </Button>
           </DialogFooter>
         </DialogContent>
